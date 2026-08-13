@@ -72,7 +72,9 @@ let ultimaY = null;
 
 const atracaoSelecionada = document.getElementById('atracaoSelecionada');
 
-fetch('./atracoes.json')
+// cache-busting: sem isso, dar F5 pode continuar mostrando uma versão
+// antiga do atracoes.json que ficou guardada em cache pelo navegador
+fetch('./atracoes.json?v=' + Date.now())
   .then(response => {
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
@@ -85,6 +87,8 @@ fetch('./atracoes.json')
 
     console.log('✅ ATRAÇÕES CARREGADAS DO JSON:', atracoes);
 
+    aplicarRascunhoSeExistir();
+
     Object.entries(atracoes).forEach(([id, atracao]) => {
       criarPin(id, atracao);
     });
@@ -96,10 +100,68 @@ fetch('./atracoes.json')
     popularSelectGps();
     atualizarStatusCalibracaoGps();
     renderGaleriaInstagram();
+    atualizarContadorPendentes();
   })
   .catch(error => {
     console.error('❌ ERRO AO CARREGAR ATRACOES.JSON:', error);
   });
+
+// ---------------------------------------------------------------------
+// RASCUNHO AUTOMÁTICO — toda posição arrastada é salva sozinha aqui,
+// então dar F5 sem ter clicado em "Salvar" NUNCA mais perde trabalho.
+// ---------------------------------------------------------------------
+
+const CHAVE_RASCUNHO = 'aldeiaRascunhoPosicoes';
+
+function salvarRascunho() {
+  const posicoes = {};
+  Object.entries(atracoesJSON).forEach(([id, a]) => {
+    if (a.x !== null && a.y !== null && a.x !== undefined && a.y !== undefined) {
+      posicoes[id] = { x: a.x, y: a.y };
+    }
+  });
+  localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(posicoes));
+}
+
+function aplicarRascunhoSeExistir() {
+  const bruto = localStorage.getItem(CHAVE_RASCUNHO);
+  if (!bruto) return;
+
+  let posicoes;
+  try {
+    posicoes = JSON.parse(bruto);
+  } catch {
+    return;
+  }
+
+  // só pergunta se o rascunho tiver alguma posição DIFERENTE do arquivo carregado
+  const temDiferenca = Object.entries(posicoes).some(([id, p]) => {
+    const atual = atracoesJSON[id];
+    return atual && (atual.x !== p.x || atual.y !== p.y);
+  });
+
+  if (!temDiferenca) return;
+
+  const restaurar = confirm(
+    '💾 Encontrei posições de pinos salvas automaticamente neste navegador ' +
+    '(de uma sessão anterior que talvez não tenha sido baixada/substituída).\n\n' +
+    'Quer restaurar essas posições agora, por cima do atracoes.json atual?'
+  );
+
+  if (!restaurar) {
+    localStorage.removeItem(CHAVE_RASCUNHO);
+    return;
+  }
+
+  Object.entries(posicoes).forEach(([id, p]) => {
+    if (atracoesJSON[id]) {
+      atracoesJSON[id].x = p.x;
+      atracoesJSON[id].y = p.y;
+    }
+  });
+
+  console.log('♻️ Rascunho restaurado por cima do atracoes.json carregado.');
+}
 
 let contadorPinosNovos = 0; // usado para espalhar os pinos sem posição numa fileira
 
@@ -317,6 +379,7 @@ function filtrar(tipo){
 // ===============================
 
 let pinSelecionado = null;
+let houveMovimento = false;
 
 const botaoCopiar = document.getElementById('copiarCoordenadas');
 const botaoSalvar = document.getElementById('salvarCoordenadas');
@@ -327,6 +390,7 @@ function ativarCalibracaoDosPins(){
     pin.addEventListener('mousedown', function(event) {
       pinSelecionado = pin;
       pinArrastando = pin;
+      houveMovimento = false;
 
       const nome = pin.dataset.nome || 'Atração sem nome';
 
@@ -341,6 +405,8 @@ function ativarCalibracaoDosPins(){
 
 document.addEventListener('mousemove', function(event) {
   if (!pinArrastando) return;
+
+  houveMovimento = true;
 
   const rect = mapaCanvasCalibracao.getBoundingClientRect();
 
@@ -364,13 +430,24 @@ document.addEventListener('mousemove', function(event) {
 document.addEventListener('mouseup', function() {
   if (!pinArrastando) return;
 
-  console.log(
-    '📍 Posição definida:', pinArrastando.dataset.nome,
-    'X:', ultimaX?.toFixed(2),
-    'Y:', ultimaY?.toFixed(2)
-  );
+  const id = pinArrastando.dataset.id || pinArrastando.dataset.nome;
 
-  // não zeramos pinSelecionado: ele continua selecionado para o botão Salvar.
+  // só grava se realmente houve arrasto (evita gravar coordenada antiga
+  // por engano num clique simples, sem mover o mouse)
+  if (houveMovimento && atracoesJSON[id]) {
+    atracoesJSON[id].x = Number(ultimaX.toFixed(2));
+    atracoesJSON[id].y = Number(ultimaY.toFixed(2));
+
+    salvarRascunho();
+    atualizarContadorPendentes();
+
+    console.log(
+      '📍 Posição gravada em memória + rascunho local:', id,
+      'X:', ultimaX?.toFixed(2),
+      'Y:', ultimaY?.toFixed(2)
+    );
+  }
+
   pinArrastando = null;
 });
 
@@ -398,34 +475,25 @@ if (botaoCopiar) {
 }
 
 // ===============================
-// SALVAR COORDENADAS (baixa um novo atracoes.json atualizado)
+// SALVAR TODAS AS POSIÇÕES
 // ===============================
+// Diferente da versão anterior, este botão NÃO salva só o último pino
+// selecionado — ele baixa o atracoes.json com TODAS as posições
+// arrastadas até agora na sessão (cada arrasto já vai sendo gravado em
+// memória sozinho, ver mouseup acima). Então o fluxo correto é:
+// arrastar quantos pinos quiser, à vontade, e só no final clicar aqui
+// UMA VEZ pra baixar o arquivo completo.
+
+function atualizarContadorPendentes() {
+  const label = document.getElementById('contadorPendentes');
+  if (!label) return;
+
+  const total = Object.values(atracoesJSON).filter(a => a.x !== null && a.y !== null).length;
+  label.textContent = `${total} posições prontas para salvar`;
+}
 
 if (botaoSalvar) {
   botaoSalvar.addEventListener('click', function() {
-    if (!pinSelecionado) {
-      alert('📍 Primeiro selecione um pin.');
-      return;
-    }
-
-    if (ultimaX === null || ultimaY === null) {
-      alert('📍 Arraste o pin para definir uma posição.');
-      return;
-    }
-
-    const id = pinSelecionado.dataset.id || pinSelecionado.dataset.nome;
-
-    if (!atracoesJSON[id]) {
-      console.error('❌ Atração não encontrada no JSON:', id);
-      alert(`❌ A atração "${id}" não existe no JSON.`);
-      return;
-    }
-
-    atracoesJSON[id].x = Number(ultimaX.toFixed(2));
-    atracoesJSON[id].y = Number(ultimaY.toFixed(2));
-
-    console.log('💾 POSIÇÃO ATUALIZADA:', id, 'X:', atracoesJSON[id].x, 'Y:', atracoesJSON[id].y);
-
     const jsonAtualizado = JSON.stringify(atracoesJSON, null, 2);
     const arquivo = new Blob([jsonAtualizado], { type: 'application/json' });
     const url = URL.createObjectURL(arquivo);
@@ -438,13 +506,16 @@ if (botaoSalvar) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    botaoSalvar.textContent = '✅ JSON salvo!';
+    botaoSalvar.textContent = '✅ Baixado! Agora substitua o arquivo antigo';
 
     setTimeout(() => {
-      botaoSalvar.textContent = '💾 Salvar posição';
-    }, 2000);
+      botaoSalvar.textContent = '💾 Salvar TODAS as posições';
+    }, 2500);
 
-    console.log('📄 Novo atracoes.json gerado! Substitua o arquivo antigo pelo baixado.');
+    // depois de baixado com sucesso, pode limpar o rascunho de segurança
+    localStorage.removeItem(CHAVE_RASCUNHO);
+
+    console.log('📄 atracoes.json completo gerado! Substitua o arquivo antigo pelo baixado.');
   });
 }
 
