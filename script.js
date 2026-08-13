@@ -16,6 +16,54 @@ mapaCanvasCalibracao.addEventListener('mousemove', function(event) {
   coordenadas.textContent = `X: ${x.toFixed(2)}% | Y: ${y.toFixed(2)}%`;
 });
 
+// ---------------------------------------------------------------------
+// MINIMIZAR / EXPANDIR o painel de calibração (pra não tampar o mapa)
+// ---------------------------------------------------------------------
+
+const btnMinimizarCalibracao = document.getElementById('minimizarCalibracao');
+const calibracaoCorpo = document.getElementById('calibracaoCorpo');
+
+function aplicarEstadoCalibracao(colapsado) {
+  calibracaoCorpo.classList.toggle('colapsado', colapsado);
+  btnMinimizarCalibracao.textContent = colapsado ? '➕' : '➖';
+}
+
+if (btnMinimizarCalibracao && calibracaoCorpo) {
+  // lembra o estado entre recarregamentos da página
+  aplicarEstadoCalibracao(localStorage.getItem('aldeiaCalibPainelColapsado') === 'sim');
+
+  btnMinimizarCalibracao.addEventListener('click', function () {
+    const novoEstado = !calibracaoCorpo.classList.contains('colapsado');
+    aplicarEstadoCalibracao(novoEstado);
+    localStorage.setItem('aldeiaCalibPainelColapsado', novoEstado ? 'sim' : 'nao');
+  });
+}
+
+// ---------------------------------------------------------------------
+// MOSTRAR / ESCONDER a seção de calibração GPS (fica escondida por
+// padrão — só é necessária no dia em que alguém for ao parque calibrar)
+// ---------------------------------------------------------------------
+
+const btnToggleGps = document.getElementById('toggleGps');
+const gpsConteudo = document.getElementById('gpsConteudo');
+
+function aplicarEstadoGps(aberto) {
+  gpsConteudo.classList.toggle('oculto', !aberto);
+  btnToggleGps.textContent = aberto
+    ? '📡 Calibração GPS ▾ (clique pra recolher)'
+    : '📡 Calibração GPS ▸ (fazer depois, no parque)';
+}
+
+if (btnToggleGps && gpsConteudo) {
+  aplicarEstadoGps(localStorage.getItem('aldeiaCalibGpsAberto') === 'sim');
+
+  btnToggleGps.addEventListener('click', function () {
+    const novoEstado = gpsConteudo.classList.contains('oculto');
+    aplicarEstadoGps(novoEstado);
+    localStorage.setItem('aldeiaCalibGpsAberto', novoEstado ? 'sim' : 'nao');
+  });
+}
+
 let atracoesJSON = {};
 let atracoes = {};
 let pinArrastando = null;
@@ -604,11 +652,34 @@ function popularSelectGps() {
   const select = document.getElementById('selectAtracaoGps');
   if (!select) return;
 
-  const itens = Object.entries(atracoes)
-    .filter(([id, a]) => a.x !== null && a.y !== null)
+  const todas = Object.entries(atracoes);
+
+  // pontos recomendados (extremidades escolhidas pra calibração) sempre no topo,
+  // mesmo que ainda não tenham posição no mapa — assim fica visível o que falta calibrar
+  const recomendados = todas
+    .filter(([id, a]) => a.pontoCalibracaoRecomendado)
+    .sort((a, b) => (a[1].numeroMapa || 0) - (b[1].numeroMapa || 0));
+
+  const outros = todas
+    .filter(([id, a]) => !a.pontoCalibracaoRecomendado && a.x !== null && a.y !== null)
     .sort((a, b) => a[1].titulo.localeCompare(b[1].titulo));
 
-  select.innerHTML = itens.map(([id, a]) => `<option value="${id}">${a.titulo}</option>`).join('');
+  function opcao([id, a]) {
+    const semPosicao = a.x === null || a.y === null;
+    const estrela = a.pontoCalibracaoRecomendado ? '⭐ ' : '';
+    const aviso = semPosicao ? ' — ⚠️ ainda sem posição no mapa' : '';
+    return `<option value="${id}" ${semPosicao ? 'disabled' : ''}>${estrela}${a.titulo}${aviso}</option>`;
+  }
+
+  let html = '';
+
+  if (recomendados.length > 0) {
+    html += `<optgroup label="⭐ Pontos recomendados p/ calibração">${recomendados.map(opcao).join('')}</optgroup>`;
+  }
+
+  html += `<optgroup label="Outras atrações">${outros.map(opcao).join('')}</optgroup>`;
+
+  select.innerHTML = html;
 }
 
 function atualizarStatusCalibracaoGps() {

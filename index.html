@@ -45,51 +45,64 @@
             <img src="./mapa.png" alt="Mapa do Aldeia das Águas">
           </picture>
 
-          <!-- MODO CALIBRAÇÃO (deixe visível durante o ajuste dos pinos; -->
-          <!-- oculte com display:none no CSS quando terminar de calibrar) -->
+          <!-- MODO CALIBRAÇÃO -->
           <div id="calibracao">
-            <strong>📍 Modo Calibração</strong>
-
-            <div id="atracaoSelecionada">
-              Nenhum pino selecionado
+            <div class="calibracao-cabecalho">
+              <strong>📍 Modo Calibração</strong>
+              <button id="minimizarCalibracao" class="btn-minimizar" title="Minimizar / expandir">➖</button>
             </div>
 
-            <div id="coordenadas">
-              X: -- | Y: --
+            <div id="calibracaoCorpo">
+
+              <div id="atracaoSelecionada">
+                Nenhum pino selecionado
+              </div>
+
+              <div id="coordenadas">
+                X: -- | Y: --
+              </div>
+
+              <button id="salvarCoordenadas">
+                💾 Salvar posição
+              </button>
+
+              <button id="copiarCoordenadas">
+                📋 Copiar coordenadas
+              </button>
+
+              <hr>
+
+              <button id="toggleGps" class="btn-toggle-gps">
+                📡 Calibração GPS ▸ (fazer depois, no parque)
+              </button>
+
+              <div id="gpsConteudo" class="oculto">
+                <p class="calib-gps-ajuda">
+                  Recomendado: use os 3 pontos com ⭐ no menu abaixo
+                  (Entrada/Bilheteria, Kilimanjaro e Tobogã Brazuca) — são
+                  extremidades bem afastadas do parque, o que deixa a
+                  calibração mais precisa. Eles precisam estar com a posição
+                  já calibrada no mapa antes (senão aparecem desabilitados).
+                </p>
+
+                <select id="selectAtracaoGps"></select>
+
+                <button id="capturarGps">
+                  📡 Capturar GPS aqui
+                </button>
+
+                <div id="statusCalibracaoGps">Pontos capturados: 0/3</div>
+
+                <button id="calcularCalibracaoGps" disabled>
+                  📐 Calcular calibração
+                </button>
+
+                <button id="resetarCalibracaoGps">
+                  🗑️ Reiniciar calibração
+                </button>
+              </div>
+
             </div>
-
-            <button id="salvarCoordenadas">
-              💾 Salvar posição
-            </button>
-
-            <button id="copiarCoordenadas">
-              📋 Copiar coordenadas
-            </button>
-
-            <hr>
-
-            <strong>📡 Calibração GPS</strong>
-            <p class="calib-gps-ajuda">
-              Vá até 3 pontos bem distintos e afastados do parque (ex: entrada,
-              extremo esquerdo, extremo direito), selecione a atração mais
-              próxima e clique em capturar.
-            </p>
-
-            <select id="selectAtracaoGps"></select>
-
-            <button id="capturarGps">
-              📡 Capturar GPS aqui
-            </button>
-
-            <div id="statusCalibracaoGps">Pontos capturados: 0/3</div>
-
-            <button id="calcularCalibracaoGps" disabled>
-              📐 Calcular calibração
-            </button>
-
-            <button id="resetarCalibracaoGps">
-              🗑️ Reiniciar calibração
-            </button>
           </div>
 
           <!-- VOCÊ ESTÁ AQUI -->

@@ -9,7 +9,9 @@
     "y": 52,
     "foto": null,
     "instagramavel": true,
-    "moldura": "assets/molduras/moldura_familia.png"
+    "moldura": "assets/molduras/moldura_familia.png",
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "piscinafloripa": {
     "titulo": "🌴 Piscina Floripa",
@@ -21,7 +23,9 @@
     "y": 57,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "piscinagurizada": {
     "titulo": "🌴 Piscina Gurizada",
@@ -33,7 +37,9 @@
     "y": 45,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "bardapiscina": {
     "titulo": "🍔 Bar da Piscina",
@@ -49,7 +55,9 @@
     "y": 28,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "banheirocentral": {
     "titulo": "🚻 Banheiro Central",
@@ -65,7 +73,9 @@
     "y": 80,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "kilimanjaro": {
     "titulo": "🎢 Kilimanjaro",
@@ -81,7 +91,9 @@
     "y": 17.02,
     "foto": null,
     "instagramavel": true,
-    "moldura": "assets/molduras/moldura_radical.png"
+    "moldura": "assets/molduras/moldura_radical.png",
+    "numeroMapa": 23,
+    "pontoCalibracaoRecomendado": true
   },
   "ondas": {
     "titulo": "🌊 Piscina de Ondas",
@@ -97,7 +109,9 @@
     "y": 44,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "barcentral": {
     "titulo": "🍔 Bar Central",
@@ -108,7 +122,9 @@
     "y": 38,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "banheiro1": {
     "titulo": "🚻 Banheiro Principal",
@@ -119,7 +135,9 @@
     "y": 78,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "banheiro2": {
     "titulo": "🚻 Banheiro Restaurante Oca",
@@ -130,7 +148,9 @@
     "y": 30,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "saude": {
     "titulo": "🏥 Posto de Saúde",
@@ -141,7 +161,9 @@
     "y": 78,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "riocorrente": {
     "titulo": "🌊 Rio Corrente",
@@ -152,7 +174,9 @@
     "y": 50,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "piratinhas": {
     "titulo": "👶 Aldeia dos Piratinhas",
@@ -163,7 +187,9 @@
     "y": 56,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "minigolfe": {
     "titulo": "🎯 Mini Golfe",
@@ -174,7 +200,9 @@
     "y": 50,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "hotel": {
     "titulo": "🏨 Hotel Quarto",
@@ -185,7 +213,9 @@
     "y": 19,
     "foto": null,
     "instagramavel": true,
-    "moldura": "assets/molduras/moldura_boasvindas.png"
+    "moldura": "assets/molduras/moldura_boasvindas.png",
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "piscinacarioca": {
     "titulo": "🌴 Piscina Carioca Kids",
@@ -197,7 +227,9 @@
     "y": 65,
     "foto": null,
     "instagramavel": true,
-    "moldura": "assets/molduras/moldura_familia.png"
+    "moldura": "assets/molduras/moldura_familia.png",
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "piscinabeaga": {
     "titulo": "🌴 Piscina Beagá",
@@ -209,7 +241,9 @@
     "y": 62,
     "foto": null,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "banheirotirolesa": {
     "titulo": "🚻 Banheiro Tirolesa",
@@ -220,7 +254,9 @@
     "x": 47,
     "y": 52,
     "instagramavel": false,
-    "moldura": null
+    "moldura": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "fazendinha": {
     "titulo": "🐐 Fazendinha",
@@ -235,7 +271,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "restaurante": {
     "titulo": "🍽️ Restaurante",
@@ -250,7 +288,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "estacionamento": {
     "titulo": "🚗 Estacionamento",
@@ -265,7 +305,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "bilheteria": {
     "titulo": "🎟️ Entrada / Bilheteria",
@@ -280,7 +322,9 @@
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_boasvindas.png",
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": 1,
+    "pontoCalibracaoRecomendado": true
   },
   "guardavolumes": {
     "titulo": "🔒 Guarda-volumes / Lockers",
@@ -295,7 +339,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "loja": {
     "titulo": "🛍️ Loja de Conveniência",
@@ -310,7 +356,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "vestiario": {
     "titulo": "🚿 Vestiário / Chuveiros",
@@ -325,7 +373,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "fraldario": {
     "titulo": "👶 Fraldário",
@@ -340,7 +390,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "playground": {
     "titulo": "🛝 Playground Infantil",
@@ -355,7 +407,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "pontoencontro": {
     "titulo": "📍 Ponto de Encontro",
@@ -370,7 +424,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "aluguelboias": {
     "titulo": "🛟 Aluguel de Boias e Toalhas",
@@ -385,7 +441,9 @@
     "instagramavel": false,
     "moldura": null,
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "mirante": {
     "titulo": "📸 Mirante do Parque",
@@ -400,7 +458,9 @@
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_radical.png",
     "x": null,
-    "y": null
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
   },
   "totementrada": {
     "titulo": "🌊 Totem Aldeia das Águas",
@@ -414,6 +474,25 @@
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_boasvindas.png",
+    "x": null,
+    "y": null,
+    "numeroMapa": null,
+    "pontoCalibracaoRecomendado": false
+  },
+  "tobogabrazuca": {
+    "titulo": "🛝 Tobogã Brazuca",
+    "texto": "<p><strong>Tobogã Brazuca.</strong></p><p>Edite este texto com as informações reais: altura mínima, peso máximo, tempo de descida, etc.</p>",
+    "status": "🟢 Disponível",
+    "categoria": "radical",
+    "espera": "—",
+    "zona": "—",
+    "adrenalina": "Alta",
+    "infantil": "Consultar altura mínima",
+    "foto": null,
+    "instagramavel": false,
+    "moldura": null,
+    "numeroMapa": 5,
+    "pontoCalibracaoRecomendado": true,
     "x": null,
     "y": null
   }
