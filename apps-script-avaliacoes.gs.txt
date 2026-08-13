@@ -1,0 +1,109 @@
+/**
+ * ======================================================================
+ * BACKEND DE AVALIAÇÕES — ALDEIA DAS ÁGUAS
+ * ======================================================================
+ * Este código roda dentro do Google Sheets (Apps Script), NÃO no seu
+ * site. Ele recebe pedidos do site (index.html) e lê/grava linhas
+ * na planilha. Veja o passo a passo de instalação no LEIA-ME.
+ *
+ * Estrutura esperada da aba "avaliacoes" (linha 1 = cabeçalho):
+ * id | timestamp | atracaoId | estrelas | comentario | nome | usuarioId
+ * ======================================================================
+ */
+
+const NOME_DA_ABA = 'avaliacoes';
+
+function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_DA_ABA);
+  const valores = sheet.getDataRange().getValues();
+
+  if (valores.length < 2) {
+    return respostaJson([]); // só tem cabeçalho, nenhuma avaliação ainda
+  }
+
+  const headers = valores[0];
+  const avaliacoes = valores.slice(1)
+    .filter(function (linha) { return linha[headers.indexOf('id')] !== ''; })
+    .map(function (linha) {
+      const obj = {};
+      headers.forEach(function (h, i) { obj[h] = linha[i]; });
+      return obj;
+    });
+
+  const atracaoId = e.parameter.atracaoId;
+  const filtradas = atracaoId
+    ? avaliacoes.filter(function (a) { return a.atracaoId === atracaoId; })
+    : avaliacoes;
+
+  return respostaJson(filtradas);
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_DA_ABA);
+  const dados = JSON.parse(e.postData.contents);
+
+  // validação básica — protege a planilha de lixo
+  const estrelas = Number(dados.estrelas);
+  if (!dados.atracaoId || !estrelas || estrelas < 1 || estrelas > 5) {
+    return respostaJson({ erro: 'Dados inválidos (atracaoId e estrelas de 1 a 5 são obrigatórios).' });
+  }
+
+  const comentario = (dados.comentario || '').toString().slice(0, 500); // limite de tamanho
+  const nome = (dados.nome || 'Visitante').toString().slice(0, 60);
+  const usuarioId = (dados.usuarioId || '').toString();
+
+  // UPSERT: se esse usuário (anônimo) já avaliou essa atração, atualiza
+  // a linha existente em vez de criar uma duplicata.
+  const valores = sheet.getDataRange().getValues();
+  const headers = valores[0];
+  const colAtracao = headers.indexOf('atracaoId');
+  const colUsuario = headers.indexOf('usuarioId');
+
+  let linhaExistente = -1;
+  for (let i = 1; i < valores.length; i++) {
+    if (valores[i][colAtracao] === dados.atracaoId && valores[i][colUsuario] === usuarioId) {
+      linhaExistente = i + 1; // getRange é 1-indexado
+      break;
+    }
+  }
+
+  const novaLinha = [
+    dados.id || Utilities.getUuid(),
+    new Date().toISOString(),
+    dados.atracaoId,
+    estrelas,
+    comentario,
+    nome,
+    usuarioId
+  ];
+
+  if (linhaExistente > 0) {
+    sheet.getRange(linhaExistente, 1, 1, novaLinha.length).setValues([novaLinha]);
+  } else {
+    sheet.appendRow(novaLinha);
+  }
+
+  return respostaJson({ sucesso: true });
+}
+
+function respostaJson(objeto) {
+  return ContentService
+    .createTextOutput(JSON.stringify(objeto))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Rode esta função UMA VEZ manualmente (▶ Executar, escolha "criarCabecalho")
+ * pra criar a aba e o cabeçalho corretos automaticamente, caso não queira
+ * digitar na mão.
+ */
+function criarCabecalho() {
+  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_DA_ABA);
+  if (!sheet) {
+    sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(NOME_DA_ABA);
+  }
+  sheet.getRange(1, 1, 1, 7).setValues([
+    ['id', 'timestamp', 'atracaoId', 'estrelas', 'comentario', 'nome', 'usuarioId']
+  ]);
+  sheet.setFrozenRows(1);
+}

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aldeia Guide - Next Level</title>
+
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+  <header>
+    <h1>🌊 ALDEIA DAS ÁGUAS RESORT</h1>
+    <p>Versão interativa do mapa do parque</p>
+  </header>
+
+  <div class="container">
+
+    <div class="mapa-area">
+
+      <div class="toolbar">
+        <input type="text" id="busca" placeholder="🔍 Buscar atração...">
+
+        <button onclick="filtrar('todos')">Todos</button>
+        <button onclick="filtrar('radical')">🎢 Radical</button>
+        <button onclick="filtrar('familia')">👨‍👩‍👧 Família</button>
+        <button onclick="filtrar('infantil')">👶 Infantil</button>
+        <button onclick="filtrar('alimentacao')">🍔 Alimentação</button>
+        <button onclick="filtrar('banheiro')">🚻 Banheiros</button>
+        <button onclick="filtrar('servico')">🏥 Serviços</button>
+        <button onclick="filtrar('lazer')">🎯 Lazer</button>
+        <button onclick="filtrar('instagram')">📸 Instagramável</button>
+
+        <button onclick="zoomIn()">➕ Zoom</button>
+        <button onclick="zoomOut()">➖ Zoom</button>
+      </div>
+
+      <div class="mapa-wrapper" id="mapaWrapper">
+
+        <div class="mapa-canvas" id="mapaCanvas">
+
+          <picture>
+            <source srcset="./mapa.webp" type="image/webp">
+            <img src="./mapa.png" alt="Mapa do Aldeia das Águas">
+          </picture>
+
+          <!-- MODO CALIBRAÇÃO (deixe visível durante o ajuste dos pinos; -->
+          <!-- oculte com display:none no CSS quando terminar de calibrar) -->
+          <div id="calibracao">
+            <strong>📍 Modo Calibração</strong>
+
+            <div id="atracaoSelecionada">
+              Nenhum pino selecionado
+            </div>
+
+            <div id="coordenadas">
+              X: -- | Y: --
+            </div>
+
+            <button id="salvarCoordenadas">
+              💾 Salvar posição
+            </button>
+
+            <button id="copiarCoordenadas">
+              📋 Copiar coordenadas
+            </button>
+
+            <hr>
+
+            <strong>📡 Calibração GPS</strong>
+            <p class="calib-gps-ajuda">
+              Vá até 3 pontos bem distintos e afastados do parque (ex: entrada,
+              extremo esquerdo, extremo direito), selecione a atração mais
+              próxima e clique em capturar.
+            </p>
+
+            <select id="selectAtracaoGps"></select>
+
+            <button id="capturarGps">
+              📡 Capturar GPS aqui
+            </button>
+
+            <div id="statusCalibracaoGps">Pontos capturados: 0/3</div>
+
+            <button id="calcularCalibracaoGps" disabled>
+              📐 Calcular calibração
+            </button>
+
+            <button id="resetarCalibracaoGps">
+              🗑️ Reiniciar calibração
+            </button>
+          </div>
+
+          <!-- VOCÊ ESTÁ AQUI -->
+          <div class="voce-aqui" id="voceAqui" style="top:86%; left:70%;"></div>
+
+          <!-- CAMADA DA ROTA (viewBox 0 0 100 100 = mesma escala % dos pinos) -->
+          <svg class="rota-svg" id="rotaSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          </svg>
+
+          <!-- Todos os pinos agora nascem dinamicamente a partir de atracoes.json (ver script.js) -->
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="painel">
+      <div class="favoritos-box">
+        <h3>❤️ Meu Dia no Aldeia</h3>
+        <ul id="listaFavoritos">
+          <li>Nenhuma atração favorita ainda</li>
+        </ul>
+      </div>
+
+      <div class="roteiro-box">
+        <h3>🗺️ Meu Roteiro</h3>
+
+        <div id="listaRoteiroAtracoes" class="lista-checkbox">
+          <!-- checkboxes gerados via JS a partir de atracoes.json -->
+        </div>
+
+        <button id="btnCriarRoteiro" class="btn-roteiro">
+          🚀 Criar roteiro
+        </button>
+
+        <button id="btnAtivarGps" class="btn-gps">
+          📍 Ativar GPS (você está aqui)
+        </button>
+
+        <div id="statusGps" class="status-gps"></div>
+
+        <div id="passosRoteiro"></div>
+      </div>
+
+      <div class="instagram-box">
+        <h3>📸 Pontos Instagramáveis</h3>
+        <div id="galeriaInstagram" class="galeria-instagram">
+          <!-- gerado via JS a partir de atracoes.json -->
+        </div>
+      </div>
+
+      <h2 id="titulo">🎢 Selecione uma atração</h2>
+
+      <div id="conteudo">
+        Clique em um dos pinos do mapa para visualizar detalhes da atração.
+      </div>
+
+      <div id="status"></div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL: compositor de foto + moldura -->
+  <div id="modalMoldura" class="modal-moldura oculto">
+    <div class="modal-conteudo">
+      <button id="fecharModalMoldura" class="fechar-modal">✕</button>
+      <h3 id="modalMolduraTitulo">📸 Ponto Instagramável</h3>
+
+      <div class="canvas-wrapper">
+        <canvas id="canvasMoldura"></canvas>
+      </div>
+
+      <p class="modal-ajuda" id="modalAjuda">
+        Escolha ou tire uma foto para encaixar na moldura:
+      </p>
+
+      <input type="file" id="inputFotoMoldura" accept="image/*" capture="environment">
+
+      <div class="modal-botoes">
+        <button id="btnBaixarFotoMoldura" disabled>⬇️ Baixar foto com moldura</button>
+        <button id="btnBaixarSoMoldura">⬇️ Baixar só a moldura (PNG)</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,929 @@
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef5f8;
+}
+
+header{
+  background:linear-gradient(135deg,#00a8d6,#0077b6);
+  color:white;
+  padding:18px;
+  text-align:center;
+}
+
+.container{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  padding:20px;
+}
+
+.mapa-area{
+  flex:2;
+  min-width:320px;
+  background:white;
+  border-radius:24px;
+  padding:15px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.toolbar input{
+  flex:1;
+  min-width:180px;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #d5dde5;
+  font-size:15px;
+}
+
+.toolbar button{
+  border:none;
+  border-radius:12px;
+  padding:12px 14px;
+  cursor:pointer;
+  font-weight:bold;
+  background:#e7f3ff;
+  color:#0b4f7a;
+}
+
+.mapa-wrapper{
+  position:relative;
+  width:100%;
+  border-radius:18px;
+  overflow:auto;
+  background:transparent;
+  max-height:80vh;
+  line-height:0;
+}
+
+.mapa-canvas{
+  position:relative;
+  width:100%;
+  line-height:0; /* remove espaço fantasma abaixo da imagem */
+  transform-origin:0 0;
+}
+
+.mapa-canvas img{
+  width:100%;
+  height:auto;
+  display:block;
+  border-radius:18px;
+  position:relative;
+  z-index:1;
+}
+
+.pin{
+  position:absolute;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  cursor:pointer;
+  border:2px solid #ffffff;
+  box-shadow:0 2px 8px rgba(0,0,0,.45);
+  transform:translate(-50%,-50%);
+  animation:pulse 2s infinite;
+  z-index:99999;
+  pointer-events:all;
+  background:#1e88e5; /* cor padrão; sobrescrita por categoria abaixo */
+}
+
+/* cores por categoria (aplicadas via classe adicionada no JS) */
+.pin.radical{background:#e53935;}
+.pin.familia{background:#1e88e5;}
+.pin.infantil{background:#8e24aa;}
+.pin.alimentacao{background:#fb8c00;}
+.pin.banheiro{background:#43a047;}
+.pin.servico{background:#757575;}
+.pin.lazer{background:#fdd835;}
+
+.lista-parque{
+  margin-top:24px;
+  background:#f5f9fc;
+  border-radius:16px;
+  padding:16px;
+}
+
+.lista-parque h3{
+  margin-top:0;
+  color:#0b4f7a;
+}
+
+.lista-parque h4{
+  margin-bottom:8px;
+  color:#0077b6;
+}
+
+.lista-parque ul{
+  list-style:none;
+  padding-left:0;
+  margin-top:0;
+}
+
+.lista-parque li{
+  padding:8px 10px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.lista-parque li:hover{
+  background:#e3f2fd;
+}
+
+.wonderplace-pin{
+  position:absolute;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#8e24aa,#d81b60);
+  border:3px solid white;
+  box-shadow:0 0 12px rgba(142,36,170,.7);
+  transform:translate(-50%,-50%);
+  z-index:99999;
+}
+
+.wonderplace-pin::after{
+  content:"W";
+  color:white;
+  font-weight:bold;
+  font-size:14px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* =========================
+   PAINEL
+========================= */
+
+.painel{
+  flex:1;
+  min-width:280px;
+  background:white;
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+
+.status{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#e8f5e9;
+  color:#2e7d32;
+  font-weight:bold;
+  margin-top:12px;
+}
+
+/* =========================
+   CARD DE INFOS (espera, zona, adrenalina, infantil)
+========================= */
+
+.info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+
+.info-card{
+  background:#f5f9fc;
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:14px;
+}
+
+.foto-atracao{
+  width:100%;
+  border-radius:16px;
+  margin-top:12px;
+  display:block;
+}
+
+/* =========================
+   FAVORITOS
+========================= */
+
+.favoritos-box{
+  background:#f5f9fc;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:18px;
+}
+
+.favoritos-box h3{
+  margin-top:0;
+  color:#0b4f7a;
+}
+
+.favoritos-box ul{
+  padding-left:18px;
+  margin:0;
+}
+
+.favoritos-box li{
+  margin-bottom:6px;
+  font-size:14px;
+}
+
+.btn-favorito{
+  background:#ff4081;
+  color:white;
+  border:none;
+  border-radius:12px;
+  padding:12px 16px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-top:16px;
+  width:100%;
+}
+
+.btn-favorito:hover{
+  background:#e91e63;
+}
+
+.btn-favorito.btn-instagram{
+  background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  margin-top:8px;
+}
+
+.btn-favorito.btn-instagram:hover{
+  filter:brightness(1.08);
+}
+
+/* =========================
+   VOCÊ ESTÁ AQUI
+========================= */
+
+.voce-aqui{
+  position:absolute;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#00c853;
+  border:4px solid white;
+  z-index:100000;
+  transform:translate(-50%,-50%);
+  animation:vocePulse 1.5s infinite;
+}
+
+@keyframes vocePulse{
+  0%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  50%{transform:translate(-50%,-50%) scale(1.2);opacity:.7;}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
+
+/* =========================
+   ANIMAÇÃO DOS PINOS
+========================= */
+
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,0,0,.35);}
+  70%{box-shadow:0 0 0 12px rgba(0,0,0,0);}
+  100%{box-shadow:0 0 0 0 rgba(0,0,0,0);}
+}
+
+.rota-svg{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:10;
+}
+
+.rota-path{
+  stroke:#ff9800;
+  stroke-width:6;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+#calibracao {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 100001;
+  background: rgba(0, 0, 0, 0.88);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  min-width: 190px;
+  pointer-events: auto;
+}
+
+#calibracao strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+#atracaoSelecionada {
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+#coordenadas {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#copiarCoordenadas {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+#salvarCoordenadas {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* =========================
+   ROTA NO MAPA (SVG)
+========================= */
+
+.rota-path{
+  vector-effect: non-scaling-stroke; /* mantém a espessura da linha mesmo com o viewBox esticado */
+}
+
+.rota-ponto{
+  vector-effect: non-scaling-stroke;
+}
+
+.rota-numero{
+  font-size: 5px;
+  font-weight: bold;
+  fill: white;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* =========================
+   ROTEIRO / GPS (painel lateral)
+========================= */
+
+.roteiro-box{
+  background:#f5f9fc;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:18px;
+}
+
+.roteiro-box h3{
+  margin-top:0;
+  color:#0b4f7a;
+}
+
+.lista-checkbox{
+  max-height:220px;
+  overflow-y:auto;
+  background:white;
+  border-radius:12px;
+  padding:10px 12px;
+  margin-bottom:12px;
+  border:1px solid #e1e9f0;
+}
+
+.lista-checkbox label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 2px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.lista-checkbox label:hover{
+  background:#f0f7fc;
+  border-radius:8px;
+}
+
+.btn-roteiro, .btn-gps{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:12px 14px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-top:8px;
+  font-size:14px;
+}
+
+.btn-roteiro{
+  background:#ff9800;
+  color:white;
+}
+
+.btn-roteiro:hover{
+  background:#f57c00;
+}
+
+.btn-gps{
+  background:#00c853;
+  color:white;
+}
+
+.btn-gps.ativo{
+  background:#d32f2f;
+}
+
+.btn-gps:hover{
+  filter:brightness(0.95);
+}
+
+.status-gps{
+  font-size:13px;
+  margin-top:8px;
+  color:#555;
+  min-height:16px;
+}
+
+.passo-roteiro{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  background:white;
+  margin-top:8px;
+  border:1px solid #e1e9f0;
+  font-size:14px;
+}
+
+.passo-roteiro.atual{
+  border-color:#ff9800;
+  background:#fff8ee;
+  font-weight:bold;
+}
+
+.passo-roteiro.concluido{
+  opacity:.5;
+  text-decoration:line-through;
+}
+
+.passo-numero{
+  width:26px;
+  height:26px;
+  min-width:26px;
+  border-radius:50%;
+  background:#0077b6;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.passo-roteiro.concluido .passo-numero{
+  background:#43a047;
+}
+
+/* =========================
+   SUB-PAINEL DE CALIBRAÇÃO GPS
+========================= */
+
+#calibracao hr{
+  border:none;
+  border-top:1px solid rgba(255,255,255,.25);
+  margin:10px 0;
+}
+
+.calib-gps-ajuda{
+  font-size:11px;
+  opacity:.85;
+  margin:4px 0 8px;
+}
+
+#selectAtracaoGps{
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:none;
+  margin-bottom:6px;
+  font-size:12px;
+}
+
+#capturarGps, #calcularCalibracaoGps, #resetarCalibracaoGps{
+  width:100%;
+  border:none;
+  border-radius:6px;
+  padding:7px;
+  margin-top:5px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:bold;
+}
+
+#resetarCalibracaoGps{
+  background:#d32f2f;
+  color:white;
+}
+
+#statusCalibracaoGps{
+  font-size:12px;
+  margin-top:6px;
+}
+
+/* =========================
+   PINOS NOVOS (aguardando calibração)
+========================= */
+
+.pin.pin-novo{
+  border: 3px dashed #ff1744;
+  background: repeating-linear-gradient(
+    45deg,
+    #ffffff,
+    #ffffff 4px,
+    #ffcdd2 4px,
+    #ffcdd2 8px
+  );
+  animation: pulseNovo 1.2s infinite;
+  z-index: 100002;
+}
+
+@keyframes pulseNovo{
+  0%{box-shadow:0 0 0 0 rgba(255,23,68,.6);}
+  70%{box-shadow:0 0 0 10px rgba(255,23,68,0);}
+  100%{box-shadow:0 0 0 0 rgba(255,23,68,0);}
+}
+
+.aviso-pinos-novos{
+  position:absolute;
+  bottom:6px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,23,68,.92);
+  color:white;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:bold;
+  z-index:100003;
+  white-space:nowrap;
+}
+
+/* =========================
+   GALERIA DE PONTOS INSTAGRAMÁVEIS
+========================= */
+
+.instagram-box{
+  background:#f5f9fc;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:18px;
+}
+
+.instagram-box h3{
+  margin-top:0;
+  color:#0b4f7a;
+}
+
+.galeria-instagram{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.item-instagram{
+  background:white;
+  border-radius:12px;
+  padding:12px 10px;
+  text-align:center;
+  cursor:pointer;
+  border:1px solid #e1e9f0;
+  font-size:13px;
+  transition:.15s;
+}
+
+.item-instagram:hover{
+  border-color:#ff9800;
+  transform:translateY(-2px);
+}
+
+.item-instagram .emoji-instagram{
+  font-size:26px;
+  display:block;
+  margin-bottom:6px;
+}
+
+/* =========================
+   MODAL COMPOSITOR DE FOTO + MOLDURA
+========================= */
+
+.modal-moldura{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999999;
+  padding:16px;
+}
+
+.modal-moldura.oculto{
+  display:none;
+}
+
+.modal-conteudo{
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  max-width:420px;
+  width:100%;
+  max-height:92vh;
+  overflow-y:auto;
+  position:relative;
+}
+
+.fechar-modal{
+  position:absolute;
+  top:14px;
+  right:14px;
+  border:none;
+  background:#eee;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.canvas-wrapper{
+  width:100%;
+  background:#222;
+  border-radius:12px;
+  overflow:hidden;
+  margin:12px 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#canvasMoldura{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.modal-ajuda{
+  font-size:13px;
+  color:#555;
+  margin:8px 0;
+}
+
+#inputFotoMoldura{
+  width:100%;
+  margin-bottom:10px;
+}
+
+.modal-botoes{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.modal-botoes button{
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#0077b6;
+  color:white;
+}
+
+.modal-botoes button:disabled{
+  background:#ccc;
+  cursor:not-allowed;
+}
+
+#btnBaixarSoMoldura{
+  background:#455a64;
+}
+
+/* =========================
+   AVALIAÇÕES (ESTRELAS + COMENTÁRIOS)
+========================= */
+
+.avaliacoes-box{
+  background:#f5f9fc;
+  border-radius:16px;
+  padding:16px;
+  margin-top:18px;
+}
+
+.avaliacoes-box h4{
+  margin-top:0;
+  margin-bottom:10px;
+  color:#0b4f7a;
+}
+
+.carregando-avaliacoes{
+  font-size:13px;
+  color:#888;
+}
+
+.aviso-avaliacoes-config{
+  background:#fff3cd;
+  color:#7a5c00;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:12px;
+  margin-bottom:10px;
+}
+
+/* média com estrelas empilhadas (fundo cinza + camada dourada por cima, cortada por width%) */
+.media-avaliacao{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.estrelas-media{
+  position:relative;
+  font-size:22px;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.estrelas-fundo{
+  color:#dcdfe3;
+}
+
+.estrelas-preenchidas{
+  position:absolute;
+  top:0;
+  left:0;
+  overflow:hidden;
+  color:#ffb400;
+  white-space:nowrap;
+}
+
+.media-avaliacao span{
+  font-size:13px;
+  color:#555;
+}
+
+/* formulário de avaliação */
+.form-avaliacao{
+  background:white;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:14px;
+  border:1px solid #e1e9f0;
+}
+
+.form-avaliacao p{
+  margin:0 0 8px;
+  font-size:13px;
+  font-weight:bold;
+  color:#333;
+}
+
+.estrelas-input{
+  font-size:30px;
+  line-height:1;
+  margin-bottom:10px;
+}
+
+.estrela-clicavel{
+  color:#dcdfe3;
+  cursor:pointer;
+  transition:.1s;
+  padding-right:2px;
+}
+
+.estrela-clicavel:hover,
+.estrela-clicavel.selecionada{
+  color:#ffb400;
+}
+
+.input-nome-avaliacao,
+.input-comentario-avaliacao{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d5dde5;
+  border-radius:8px;
+  padding:8px 10px;
+  font-size:13px;
+  margin-bottom:8px;
+  font-family:inherit;
+}
+
+.input-comentario-avaliacao{
+  min-height:60px;
+  resize:vertical;
+}
+
+.btn-enviar-avaliacao{
+  width:100%;
+  border:none;
+  border-radius:10px;
+  padding:10px;
+  background:#0077b6;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.btn-enviar-avaliacao:hover{
+  background:#005f8f;
+}
+
+.status-envio-avaliacao{
+  font-size:12px;
+  margin-top:6px;
+  color:#555;
+  min-height:14px;
+}
+
+/* lista de comentários */
+.lista-comentarios{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.sem-comentarios{
+  font-size:13px;
+  color:#888;
+  font-style:italic;
+}
+
+.comentario-item{
+  background:white;
+  border-radius:10px;
+  padding:10px 12px;
+  border:1px solid #e1e9f0;
+}
+
+.comentario-cabecalho{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:4px;
+}
+
+.comentario-cabecalho strong{
+  font-size:13px;
+  color:#0b4f7a;
+}
+
+.comentario-estrelas{
+  color:#ffb400;
+  font-size:13px;
+}
+
+.comentario-item p{
+  margin:0;
+  font-size:13px;
+  color:#444;
+  line-height:1.4;
+}
+
+/* =========================
+   RESPONSIVO (celular)
+========================= */
+
+@media (max-width: 720px){
+  .container{
+    flex-direction:column;
+    padding:12px;
+  }
+  .toolbar button{
+    padding:10px 12px;
+    font-size:13px;
+  }
+  #calibracao{
+    font-size:12px;
+    min-width:150px;
+  }
+}
