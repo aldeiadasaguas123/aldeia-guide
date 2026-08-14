@@ -2,10 +2,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aldeia Guide - Next Level</title>
 
-  <link rel="stylesheet" href="style.css">
+  <script>
+    // carrega o CSS com "cache-busting" automático (timestamp sempre novo),
+    // pra nunca mais precisar dar Ctrl+F5 depois de trocar um arquivo
+    (function () {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = './style.css?v=' + Date.now();
+      document.head.appendChild(link);
+    })();
+  </script>
 
 </head>
 <body>
@@ -174,24 +186,51 @@
       <button id="fecharModalMoldura" class="fechar-modal">✕</button>
       <h3 id="modalMolduraTitulo">📸 Ponto Instagramável</h3>
 
-      <div class="canvas-wrapper">
+      <!-- MODO CÂMERA AO VIVO: vídeo + moldura sobreposta em tempo real -->
+      <div class="camera-wrapper" id="cameraWrapper">
+        <video id="videoCamera" autoplay playsinline muted></video>
+        <img id="molduraOverlayCamera" class="moldura-overlay-camera" alt="">
+        <p class="camera-erro oculto" id="cameraErro">
+          Não consegui acessar a câmera. Verifique as permissões do
+          navegador, ou use a opção "Escolher da galeria" abaixo.
+        </p>
+      </div>
+
+      <!-- PREVIEW FINAL: canvas com a composição pronta (some até capturar/escolher) -->
+      <div class="canvas-wrapper oculto" id="canvasWrapper">
         <canvas id="canvasMoldura"></canvas>
       </div>
 
       <p class="modal-ajuda" id="modalAjuda">
-        Escolha ou tire uma foto para encaixar na moldura:
+        Enquadre e toque em "Capturar", ou escolha uma foto da galeria:
       </p>
 
-      <input type="file" id="inputFotoMoldura" accept="image/*" capture="environment">
+      <div class="modal-botoes-camera">
+        <button id="btnCapturarFoto" class="btn-capturar">📸 Capturar</button>
+        <button id="btnTrocarCamera" title="Trocar câmera">🔄</button>
+      </div>
+
+      <button id="btnEscolherGaleria" class="btn-galeria">🖼️ Escolher da galeria</button>
+      <input type="file" id="inputFotoMoldura" accept="image/*" class="oculto">
+
+      <button id="btnNovaFoto" class="btn-galeria oculto">↩️ Tirar/escolher outra foto</button>
 
       <div class="modal-botoes">
+        <button id="btnCompartilharFoto" class="btn-compartilhar oculto">📤 Compartilhar</button>
         <button id="btnBaixarFotoMoldura" disabled>⬇️ Baixar foto com moldura</button>
         <button id="btnBaixarSoMoldura">⬇️ Baixar só a moldura (PNG)</button>
       </div>
     </div>
   </div>
 
-  <script src="./script.js"></script>
+  <script>
+    // mesmo esquema do CSS: carrega o script.js sempre fresco, nunca em cache
+    (function () {
+      var script = document.createElement('script');
+      script.src = './script.js?v=' + Date.now();
+      document.body.appendChild(script);
+    })();
+  </script>
 
 </body>
 </html>

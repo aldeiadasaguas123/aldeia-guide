@@ -1042,7 +1042,7 @@ function renderGaleriaInstagram() {
 
 let molduraAtualId = null;
 let molduraAtualImg = null; // Image() da moldura carregada
-let fotoAtualImg = null;    // Image() da foto escolhida pelo usuário
+let fotoAtualImg = null;    // Image() da foto capturada/escolhida (null = ainda na câmera ao vivo)
 
 const modalMoldura = document.getElementById('modalMoldura');
 const canvasMoldura = document.getElementById('canvasMoldura');
@@ -1050,6 +1050,24 @@ const ctxMoldura = canvasMoldura ? canvasMoldura.getContext('2d') : null;
 const inputFotoMoldura = document.getElementById('inputFotoMoldura');
 const btnBaixarFotoMoldura = document.getElementById('btnBaixarFotoMoldura');
 const btnBaixarSoMoldura = document.getElementById('btnBaixarSoMoldura');
+const btnCompartilharFoto = document.getElementById('btnCompartilharFoto');
+
+const cameraWrapper = document.getElementById('cameraWrapper');
+const canvasWrapper = document.getElementById('canvasWrapper');
+const videoCamera = document.getElementById('videoCamera');
+const molduraOverlayCamera = document.getElementById('molduraOverlayCamera');
+const cameraErro = document.getElementById('cameraErro');
+const btnCapturarFoto = document.getElementById('btnCapturarFoto');
+const btnTrocarCamera = document.getElementById('btnTrocarCamera');
+const btnEscolherGaleria = document.getElementById('btnEscolherGaleria');
+const btnNovaFoto = document.getElementById('btnNovaFoto');
+
+let streamCamera = null;
+let cameraAtual = 'environment'; // começa na câmera traseira (melhor pra fotografar o parque)
+
+// ----------------------------------------------------------------------
+// ABRIR / FECHAR O MODAL
+// ----------------------------------------------------------------------
 
 function abrirModalMoldura(id) {
   const atracao = atracoes[id];
@@ -1059,26 +1077,28 @@ function abrirModalMoldura(id) {
   fotoAtualImg = null;
 
   document.getElementById('modalMolduraTitulo').textContent = `📸 ${atracao.titulo}`;
-  document.getElementById('modalAjuda').textContent = 'Escolha ou tire uma foto para encaixar na moldura:';
+  document.getElementById('modalAjuda').textContent = 'Enquadre e toque em "Capturar", ou escolha uma foto da galeria:';
   if (inputFotoMoldura) inputFotoMoldura.value = '';
   if (btnBaixarFotoMoldura) btnBaixarFotoMoldura.disabled = true;
+  if (btnCompartilharFoto) btnCompartilharFoto.classList.add('oculto');
+  if (btnNovaFoto) btnNovaFoto.classList.add('oculto');
+
+  molduraOverlayCamera.src = atracao.moldura;
 
   molduraAtualImg = new Image();
-  molduraAtualImg.onload = function () {
-    canvasMoldura.width = molduraAtualImg.width;
-    canvasMoldura.height = molduraAtualImg.height;
-    redesenharCanvasMoldura();
-  };
   molduraAtualImg.onerror = function () {
     alert('❌ Não encontrei o arquivo da moldura: ' + atracao.moldura + '\nColoque a imagem em assets/molduras/.');
   };
   molduraAtualImg.src = atracao.moldura;
 
+  mostrarModoCamera();
   modalMoldura.classList.remove('oculto');
+  iniciarCamera();
 }
 
 function fecharModalMoldura() {
   modalMoldura.classList.add('oculto');
+  pararCamera();
 }
 
 const botaoFecharModal = document.getElementById('fecharModalMoldura');
@@ -1092,31 +1112,114 @@ if (modalMoldura) {
   });
 }
 
-function redesenharCanvasMoldura() {
-  if (!ctxMoldura || !molduraAtualImg) return;
+// ----------------------------------------------------------------------
+// CÂMERA AO VIVO (getUserMedia) — a moldura fica sobreposta em tempo
+// real no <video>, então a pessoa já vê como vai ficar antes de tirar.
+// IMPORTANTE: só funciona em HTTPS ou localhost (regra do navegador,
+// igual o GPS). No file:// direto, cai automaticamente pra galeria.
+// ----------------------------------------------------------------------
 
-  const W = canvasMoldura.width;
-  const H = canvasMoldura.height;
+function mostrarModoCamera() {
+  cameraWrapper.classList.remove('oculto');
+  canvasWrapper.classList.add('oculto');
+  btnCapturarFoto.classList.remove('oculto');
+  btnTrocarCamera.classList.remove('oculto');
+  btnEscolherGaleria.classList.remove('oculto');
+  btnNovaFoto.classList.add('oculto');
+}
 
-  ctxMoldura.clearRect(0, 0, W, H);
+function mostrarModoPreview() {
+  cameraWrapper.classList.add('oculto');
+  canvasWrapper.classList.remove('oculto');
+  btnCapturarFoto.classList.add('oculto');
+  btnTrocarCamera.classList.add('oculto');
+  btnEscolherGaleria.classList.add('oculto');
+  btnNovaFoto.classList.remove('oculto');
+}
 
-  if (fotoAtualImg) {
-    // desenha a foto do usuário cobrindo o canvas inteiro (crop central, tipo object-fit:cover)
-    const escala = Math.max(W / fotoAtualImg.width, H / fotoAtualImg.height);
-    const larguraDesenho = fotoAtualImg.width * escala;
-    const alturaDesenho = fotoAtualImg.height * escala;
-    const offsetX = (W - larguraDesenho) / 2;
-    const offsetY = (H - alturaDesenho) / 2;
+async function iniciarCamera() {
+  pararCamera();
+  cameraErro.classList.add('oculto');
 
-    ctxMoldura.drawImage(fotoAtualImg, offsetX, offsetY, larguraDesenho, alturaDesenho);
-  } else {
-    // sem foto ainda: mostra um fundo cinza pra visualizar só a moldura
-    ctxMoldura.fillStyle = '#cccccc';
-    ctxMoldura.fillRect(0, 0, W, H);
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    cameraErro.classList.remove('oculto');
+    return;
   }
 
-  // a moldura sempre por cima (tem áreas transparentes por design)
-  ctxMoldura.drawImage(molduraAtualImg, 0, 0, W, H);
+  try {
+    streamCamera = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: cameraAtual },
+      audio: false
+    });
+    videoCamera.srcObject = streamCamera;
+  } catch (erro) {
+    console.warn('⚠️ Câmera indisponível:', erro.message);
+    cameraErro.classList.remove('oculto');
+  }
+}
+
+function pararCamera() {
+  if (streamCamera) {
+    streamCamera.getTracks().forEach(track => track.stop());
+    streamCamera = null;
+  }
+}
+
+if (btnTrocarCamera) {
+  btnTrocarCamera.addEventListener('click', function () {
+    cameraAtual = cameraAtual === 'environment' ? 'user' : 'environment';
+    iniciarCamera();
+  });
+}
+
+// captura o frame atual do vídeo + a moldura, e joga no canvas de preview
+if (btnCapturarFoto) {
+  btnCapturarFoto.addEventListener('click', function () {
+    if (!videoCamera.videoWidth) return; // câmera ainda não carregou nenhum frame
+
+    const imagemCapturada = new Image();
+    const canvasTemp = document.createElement('canvas');
+    canvasTemp.width = videoCamera.videoWidth;
+    canvasTemp.height = videoCamera.videoHeight;
+    const ctxTemp = canvasTemp.getContext('2d');
+
+    // espelha se for câmera frontal (senão a foto sai "invertida" tipo espelho)
+    if (cameraAtual === 'user') {
+      ctxTemp.translate(canvasTemp.width, 0);
+      ctxTemp.scale(-1, 1);
+    }
+    ctxTemp.drawImage(videoCamera, 0, 0);
+
+    imagemCapturada.onload = function () {
+      fotoAtualImg = imagemCapturada;
+      pararCamera();
+      prepararCanvasComMoldura();
+      mostrarModoPreview();
+      if (btnBaixarFotoMoldura) btnBaixarFotoMoldura.disabled = false;
+      if (btnCompartilharFoto) atualizarBotaoCompartilhar();
+    };
+    imagemCapturada.src = canvasTemp.toDataURL('image/jpeg', 0.92);
+  });
+}
+
+if (btnNovaFoto) {
+  btnNovaFoto.addEventListener('click', function () {
+    fotoAtualImg = null;
+    if (btnBaixarFotoMoldura) btnBaixarFotoMoldura.disabled = true;
+    if (btnCompartilharFoto) btnCompartilharFoto.classList.add('oculto');
+    mostrarModoCamera();
+    iniciarCamera();
+  });
+}
+
+// ----------------------------------------------------------------------
+// GALERIA (upload de foto já existente)
+// ----------------------------------------------------------------------
+
+if (btnEscolherGaleria) {
+  btnEscolherGaleria.addEventListener('click', function () {
+    inputFotoMoldura.click();
+  });
 }
 
 if (inputFotoMoldura) {
@@ -1126,16 +1229,53 @@ if (inputFotoMoldura) {
 
     const leitor = new FileReader();
     leitor.onload = function (e) {
-      fotoAtualImg = new Image();
-      fotoAtualImg.onload = function () {
-        redesenharCanvasMoldura();
+      const img = new Image();
+      img.onload = function () {
+        fotoAtualImg = img;
+        pararCamera();
+        prepararCanvasComMoldura();
+        mostrarModoPreview();
         if (btnBaixarFotoMoldura) btnBaixarFotoMoldura.disabled = false;
+        atualizarBotaoCompartilhar();
       };
-      fotoAtualImg.src = e.target.result;
+      img.src = e.target.result;
     };
     leitor.readAsDataURL(arquivo);
   });
 }
+
+// ----------------------------------------------------------------------
+// COMPOSIÇÃO FINAL (canvas = foto + moldura por cima)
+// ----------------------------------------------------------------------
+
+function prepararCanvasComMoldura() {
+  if (!ctxMoldura || !molduraAtualImg || !fotoAtualImg) return;
+
+  // usa o tamanho real da moldura (ex: 1080x1350) como resolução final
+  const W = molduraAtualImg.naturalWidth || molduraAtualImg.width || 1080;
+  const H = molduraAtualImg.naturalHeight || molduraAtualImg.height || 1350;
+
+  canvasMoldura.width = W;
+  canvasMoldura.height = H;
+
+  ctxMoldura.clearRect(0, 0, W, H);
+
+  // desenha a foto cobrindo o canvas inteiro (crop central, tipo object-fit:cover)
+  const escala = Math.max(W / fotoAtualImg.width, H / fotoAtualImg.height);
+  const larguraDesenho = fotoAtualImg.width * escala;
+  const alturaDesenho = fotoAtualImg.height * escala;
+  const offsetX = (W - larguraDesenho) / 2;
+  const offsetY = (H - alturaDesenho) / 2;
+
+  ctxMoldura.drawImage(fotoAtualImg, offsetX, offsetY, larguraDesenho, alturaDesenho);
+
+  // a moldura sempre por cima (tem áreas transparentes por design)
+  ctxMoldura.drawImage(molduraAtualImg, 0, 0, W, H);
+}
+
+// ----------------------------------------------------------------------
+// BAIXAR
+// ----------------------------------------------------------------------
 
 if (btnBaixarFotoMoldura) {
   btnBaixarFotoMoldura.addEventListener('click', function () {
@@ -1165,6 +1305,57 @@ if (btnBaixarSoMoldura) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  });
+}
+
+// ----------------------------------------------------------------------
+// COMPARTILHAR — abre o menu nativo do celular (Instagram, WhatsApp,
+// Facebook, X/Twitter, E-mail, Mensagens etc. aparecem automaticamente,
+// porque é o próprio sistema operacional que monta essa lista).
+// A escolha entre "Feed" ou "Stories" do Instagram é decidida pelo
+// próprio app do Instagram depois que ele recebe a imagem — não dá pra
+// forçar isso a partir do site.
+// Só funciona em celular com HTTPS (Web Share API); no computador, ou
+// se o navegador não suportar, o botão nem aparece — a pessoa baixa e
+// posta manualmente.
+// ----------------------------------------------------------------------
+
+function atualizarBotaoCompartilhar() {
+  if (!btnCompartilharFoto) return;
+
+  const suportaCompartilharArquivo =
+    navigator.share && navigator.canShare && canvasMoldura.toBlob;
+
+  btnCompartilharFoto.classList.toggle('oculto', !suportaCompartilharArquivo);
+}
+
+if (btnCompartilharFoto) {
+  btnCompartilharFoto.addEventListener('click', function () {
+    if (!fotoAtualImg) return;
+
+    canvasMoldura.toBlob(async function (blob) {
+      const atracao = atracoes[molduraAtualId];
+      const arquivo = new File([blob], `aldeia-${molduraAtualId || 'foto'}.png`, { type: 'image/png' });
+
+      const dadosCompartilhamento = {
+        files: [arquivo],
+        title: 'Aldeia das Águas',
+        text: atracao ? `Curtindo o(a) ${atracao.titulo} no Aldeia das Águas! 🌊` : 'Meu dia no Aldeia das Águas! 🌊'
+      };
+
+      if (!navigator.canShare(dadosCompartilhamento)) {
+        alert('⚠️ Seu navegador não permite compartilhar arquivos diretamente. Baixe a foto e poste manualmente.');
+        return;
+      }
+
+      try {
+        await navigator.share(dadosCompartilhamento);
+      } catch (erro) {
+        if (erro.name !== 'AbortError') { // AbortError = a pessoa só cancelou o menu, não é erro de verdade
+          console.error('❌ Erro ao compartilhar:', erro);
+        }
+      }
+    }, 'image/png');
   });
 }
 
