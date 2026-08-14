@@ -5,8 +5,8 @@
     "status": "🌟 Setor temático",
     "favorito": "Área WonderPlace",
     "categoria": "lazer",
-    "x": 69,
-    "y": 52,
+    "x": 77.47,
+    "y": 58.24,
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_familia.png",
@@ -19,8 +19,8 @@
     "status": "🟢 Funcionando normalmente",
     "favorito": "Piscina Floripa",
     "categoria": "lazer",
-    "x": 44,
-    "y": 57,
+    "x": 51.19,
+    "y": 63.12,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -33,8 +33,8 @@
     "status": "🟢 Funcionando normalmente",
     "favorito": "Piscina Gurizada",
     "categoria": "infantil",
-    "x": 82,
-    "y": 45,
+    "x": 90.99,
+    "y": 51.85,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -51,8 +51,8 @@
     "infantil": "✅ Sim",
     "favorito": "Bar da Piscina",
     "categoria": "alimentacao",
-    "x": 77,
-    "y": 28,
+    "x": 60.08,
+    "y": 66.87,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -69,8 +69,8 @@
     "infantil": "✅ Sim",
     "favorito": "Banheiro Central",
     "categoria": "banheiro",
-    "x": 40,
-    "y": 80,
+    "x": 75.34,
+    "y": 47.53,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -105,8 +105,8 @@
     "infantil": "✅ Sim",
     "favorito": "Piscina de Ondas",
     "categoria": "familia",
-    "x": 78,
-    "y": 44,
+    "x": 86.48,
+    "y": 52.23,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -118,8 +118,8 @@
     "texto": "<p><strong>Ponto principal de alimentação do parque.</strong></p><p>Hambúrgueres, porções, bebidas e sorvetes.</p>",
     "status": "🟢 Funcionando normalmente",
     "categoria": "alimentacao",
-    "x": 72,
-    "y": 38,
+    "x": 80.35,
+    "y": 47.16,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -131,8 +131,8 @@
     "texto": "<p>Banheiro próximo à área central do parque.</p><p>Inclui acessibilidade e fraldário.</p>",
     "status": "🟢 Disponível",
     "categoria": "banheiro",
-    "x": 57,
-    "y": 78,
+    "x": 86.11,
+    "y": 56.36,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -144,8 +144,8 @@
     "texto": "<p>Banheiro de apoio ao Restaurante Oca.</p><p>Ideal para famílias.</p>",
     "status": "🟢 Disponível",
     "categoria": "banheiro",
-    "x": 77,
-    "y": 30,
+    "x": 83.98,
+    "y": 39.65,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -157,8 +157,8 @@
     "texto": "<p><strong>Atendimento de primeiros socorros.</strong></p><p>Equipe disponível durante todo o funcionamento do parque.</p>",
     "status": "🟢 Equipe disponível",
     "categoria": "servico",
-    "x": 50,
-    "y": 78,
+    "x": 71.59,
+    "y": 45.28,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -170,8 +170,8 @@
     "texto": "<p><strong>Atração relaxante para toda a família.</strong></p><p>Percurso com boias e correnteza suave.</p>",
     "status": "🟢 Aberto agora",
     "categoria": "familia",
-    "x": 77,
-    "y": 50,
+    "x": 85.98,
+    "y": 57.48,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -183,8 +183,8 @@
     "texto": "<p><strong>Área aquática infantil temática.</strong></p><p>Tobogãs pequenos, chafarizes e brinquedos interativos.</p>",
     "status": "🟢 Funcionando normalmente",
     "categoria": "infantil",
-    "x": 61,
-    "y": 56,
+    "x": 68.34,
+    "y": 63.87,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -196,8 +196,8 @@
     "texto": "<p><strong>Acesso à área de hospedagem do resort.</strong></p><p>Consulte disponibilidade e horários de check-in na recepção.</p>",
     "status": "🟢 Acesso liberado",
     "categoria": "servico",
-    "x": 56,
-    "y": 19,
+    "x": 64.33,
+    "y": 30.44,
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_boasvindas.png",
@@ -210,8 +210,8 @@
     "status": "🟢 Funcionando normalmente",
     "favorito": "Piscina Infantil",
     "categoria": "infantil",
-    "x": 50,
-    "y": 65,
+    "x": 57.07,
+    "y": 72.13,
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_familia.png",
@@ -224,8 +224,8 @@
     "status": "🟢 Funcionando normalmente",
     "favorito": "Piscina Beagá",
     "categoria": "lazer",
-    "x": 42,
-    "y": 62,
+    "x": 49.44,
+    "y": 67.44,
     "foto": null,
     "instagramavel": false,
     "moldura": null,
@@ -244,8 +244,8 @@
     "foto": null,
     "instagramavel": false,
     "moldura": null,
-    "x": null,
-    "y": null,
+    "x": 43.55,
+    "y": 45.28,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -261,8 +261,8 @@
     "foto": null,
     "instagramavel": false,
     "moldura": null,
-    "x": null,
-    "y": null,
+    "x": 82.73,
+    "y": 82.65,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -278,8 +278,8 @@
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_boasvindas.png",
-    "x": null,
-    "y": null,
+    "x": 70.34,
+    "y": 85.09,
     "numeroMapa": 1,
     "pontoCalibracaoRecomendado": true
   },
@@ -295,8 +295,8 @@
     "foto": null,
     "instagramavel": false,
     "moldura": null,
-    "x": null,
-    "y": null,
+    "x": 47.56,
+    "y": 83.02,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -312,8 +312,8 @@
     "foto": null,
     "instagramavel": false,
     "moldura": null,
-    "x": null,
-    "y": null,
+    "x": 78.85,
+    "y": 42.27,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -329,8 +329,8 @@
     "foto": null,
     "instagramavel": false,
     "moldura": null,
-    "x": null,
-    "y": null,
+    "x": 67.94,
+    "y": 89.35,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -346,8 +346,8 @@
     "foto": null,
     "instagramavel": false,
     "moldura": null,
-    "x": null,
-    "y": null,
+    "x": 88.86,
+    "y": 47.91,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -363,8 +363,8 @@
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_radical.png",
-    "x": null,
-    "y": null,
+    "x": 91.49,
+    "y": 46.03,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -380,8 +380,8 @@
     "foto": null,
     "instagramavel": true,
     "moldura": "assets/molduras/moldura_boasvindas.png",
-    "x": null,
-    "y": null,
+    "x": 76.6,
+    "y": 92.6,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false
   },
@@ -399,8 +399,8 @@
     "moldura": null,
     "numeroMapa": 5,
     "pontoCalibracaoRecomendado": true,
-    "x": null,
-    "y": null
+    "x": 37.7,
+    "y": 67.15
   },
   "arealimentacao1": {
     "titulo": "🍔 Bar/Restaurante 1",
@@ -416,8 +416,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 83.35,
+    "y": 55.61
   },
   "arealimentacao2": {
     "titulo": "🍔 Bar/Restaurante 2",
@@ -433,8 +433,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 51.06,
+    "y": 46.78
   },
   "arealimentacao3": {
     "titulo": "🍔 Bar/Restaurante 3",
@@ -450,8 +450,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 86.86,
+    "y": 46.78
   },
   "arealimentacao4": {
     "titulo": "🍔 Bar/Restaurante 4",
@@ -467,8 +467,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 41.69,
+    "y": 58.7
   },
   "arealimentacao5": {
     "titulo": "🍔 Bar/Restaurante 5",
@@ -484,8 +484,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 48.89,
+    "y": 59.64
   },
   "arealimentacao6": {
     "titulo": "🍔 Bar/Restaurante 6",
@@ -501,8 +501,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 61.58,
+    "y": 61.24
   },
   "arealimentacao7": {
     "titulo": "🍔 Bar/Restaurante 7",
@@ -518,8 +518,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 59.63,
+    "y": 77.95
   },
   "arealimentacao8": {
     "titulo": "🍔 Bar/Restaurante 8",
@@ -535,8 +535,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 74.38,
+    "y": 66.95
   },
   "arealimentacao9": {
     "titulo": "🍔 Bar/Restaurante 9",
@@ -552,8 +552,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 70.59,
+    "y": 76.08
   },
   "arealimentacao11": {
     "titulo": "🍔 Bar/Restaurante 11",
@@ -569,8 +569,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 86.67,
+    "y": 36.87
   },
   "banheiro3": {
     "titulo": "🚻 Banheiro 3",
@@ -586,8 +586,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 55.07,
+    "y": 63.87
   },
   "banheiro4": {
     "titulo": "🚻 Banheiro 4",
@@ -603,8 +603,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 63.45,
+    "y": 80.96
   },
   "banheirofamilia": {
     "titulo": "🚻 Banheiro Família",
@@ -620,8 +620,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 43.68,
+    "y": 64.25
   },
   "palcopantanal": {
     "titulo": "🎤 Palco Pantanal",
@@ -637,8 +637,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 30.19,
+    "y": 65.86
   },
   "palcowonderplace": {
     "titulo": "🎤 Palco Wonder Place",
@@ -654,8 +654,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 83.85,
+    "y": 50.54
   },
   "armario1": {
     "titulo": "🔒 Armários 1",
@@ -671,8 +671,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 52.94,
+    "y": 83.96
   },
   "armario2": {
     "titulo": "🔒 Armários 2",
@@ -688,8 +688,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 76.08,
+    "y": 53.8
   },
   "radio": {
     "titulo": "📻 Rádio / Som Ambiente",
@@ -705,8 +705,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 52.57,
+    "y": 70.03
   },
   "centralcredito1": {
     "titulo": "💳 Central de Crédito 1",
@@ -722,8 +722,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 61.83,
+    "y": 76.08
   },
   "centralcredito2": {
     "titulo": "💳 Central de Crédito 2",
@@ -739,8 +739,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 63.58,
+    "y": 73.07
   },
   "centralcredito3": {
     "titulo": "💳 Central de Crédito 3",
@@ -756,8 +756,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 45.68,
+    "y": 56.94
   },
   "centralcredito4": {
     "titulo": "💳 Central de Crédito 4",
@@ -773,8 +773,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 77.35,
+    "y": 45.28
   },
   "centralcredito5": {
     "titulo": "💳 Central de Crédito 5",
@@ -790,8 +790,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 46.54,
+    "y": 51.3
   },
   "centralcredito6": {
     "titulo": "💳 Central de Crédito 6",
@@ -807,8 +807,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 43.68,
+    "y": 75.32
   },
   "centralcredito7": {
     "titulo": "💳 Central de Crédito 7",
@@ -824,8 +824,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 60.45,
+    "y": 83.59
   },
   "rampayuppie": {
     "titulo": "🎢 Rampa Yuppie",
@@ -841,8 +841,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 96.25,
+    "y": 48.47
   },
   "sidewinder": {
     "titulo": "🎢 Side Winder",
@@ -858,8 +858,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 88.11,
+    "y": 28.19
   },
   "tirolesa": {
     "titulo": "🪂 Tirolesa",
@@ -875,8 +875,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 56.86,
+    "y": 59.84
   },
   "lago": {
     "titulo": "🏞️ Lago",
@@ -892,8 +892,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 53.57,
+    "y": 44.34
   },
   "centralinformacoes": {
     "titulo": "ℹ️ Central de Informações",
@@ -909,8 +909,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 56.32,
+    "y": 85.84
   },
   "sorveteria": {
     "titulo": "🍦 Sorveteria",
@@ -926,8 +926,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 75.34,
+    "y": 61.62
   },
   "campo": {
     "titulo": "⚽ Campo",
@@ -943,8 +943,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 68.21,
+    "y": 50.35
   },
   "piscinapantanal": {
     "titulo": "🌴 Piscina Pantanal",
@@ -960,8 +960,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 33.92,
+    "y": 62.37
   },
   "acessoexclusivoquartzo": {
     "titulo": "🔑 Acesso Exclusivo – Hóspedes Quartzo",
@@ -977,8 +977,8 @@
     "moldura": null,
     "numeroMapa": 26,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 50.14,
+    "y": 77.01
   },
   "piscinapelourinho": {
     "titulo": "🌴 Piscina Pelourinho",
@@ -994,8 +994,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 66.58,
+    "y": 68.94
   },
   "piscinasampa": {
     "titulo": "🌴 Piscina Sampa",
@@ -1011,8 +1011,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 58.45,
+    "y": 65
   },
   "centralcredito8": {
     "titulo": "💳 Central de Crédito 8",
@@ -1028,8 +1028,8 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 84.36,
+    "y": 45.65
   },
   "centralcredito9": {
     "titulo": "💳 Central de Crédito 9",
@@ -1045,7 +1045,7 @@
     "moldura": null,
     "numeroMapa": null,
     "pontoCalibracaoRecomendado": false,
-    "x": null,
-    "y": null
+    "x": 65.08,
+    "y": 64.25
   }
 }
