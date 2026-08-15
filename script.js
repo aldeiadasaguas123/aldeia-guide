@@ -101,6 +101,11 @@ fetch('./atracoes.json?v=' + Date.now())
     atualizarStatusCalibracaoGps();
     renderGaleriaInstagram();
     atualizarContadorPendentes();
+
+    // Missão 03.3 — clustering só na renderização inicial (ainda não
+    // reage a zoom/filtro). Espera a imagem do mapa carregar antes de
+    // medir dimensões, para não calcular com altura 0.
+    agendarClusteringInicial();
   })
   .catch(error => {
     console.error('❌ ERRO AO CARREGAR ATRACOES.JSON:', error);
@@ -477,6 +482,76 @@ function criarMarcadorCluster(grupo, mapaCanvasAlvo) {
   mapaCanvasAlvo.appendChild(marcador);
 
   return marcador;
+}
+
+// ===============================
+// CLUSTERING — integração com o carregamento inicial (Missão 03.3)
+// Não altera criarPin() nem a lista `atracoes`: os pinos originais
+// continuam existindo no DOM (fonte de verdade), o clustering só
+// esconde visualmente os que pertencem a um grupo de 2+ e desenha o
+// marcador por cima. Ainda não reage a zoom nem a filtro — isso fica
+// para as próximas sub-missões.
+// ===============================
+
+// Mesmo critério de coordenada válida já usado em renderChecklistRoteiro():
+// só entram no cálculo atrações com x/y definidos (exclui "pinos novos"
+// ainda não calibrados).
+function obterPontosParaClustering() {
+  return Object.entries(atracoes)
+    .filter(([id, atracao]) => atracao.x !== null && atracao.x !== undefined
+                             && atracao.y !== null && atracao.y !== undefined)
+    .map(([id, atracao]) => ({ id, x: atracao.x, y: atracao.y }));
+}
+
+// Calcula os grupos e aplica visualmente: esconde os pinos de cada
+// grupo com 2+ atrações e desenha o marcador de cluster no lugar.
+// Pinos que ficam sozinhos em seu grupo não são tocados — continuam
+// visíveis exatamente como criarPin() os deixou.
+function aplicarClusteringInicial() {
+  const pontos = obterPontosParaClustering();
+  const retanguloMapa = mapaCanvas.getBoundingClientRect();
+
+  if (!retanguloMapa.width || !retanguloMapa.height) {
+    console.warn('⚠️ Clustering inicial não aplicado: dimensões do mapa indisponíveis.');
+    return;
+  }
+
+  const grupos = calcularClusters(pontos, retanguloMapa);
+
+  grupos.forEach(grupo => {
+    if (grupo.length < 2) return; // pino isolado — mantém como está
+
+    grupo.forEach(ponto => {
+      const pinElemento = mapaCanvas.querySelector(`.pin[data-id="${ponto.id}"]`);
+      if (pinElemento) {
+        pinElemento.style.display = 'none';
+      }
+    });
+
+    criarMarcadorCluster(grupo, mapaCanvas);
+  });
+}
+
+// Só roda o clustering inicial depois que a imagem do mapa terminar
+// de carregar — antes disso, .mapa-canvas pode não ter altura real
+// ainda, o que distorceria o cálculo de distância em pixels.
+function agendarClusteringInicial() {
+  const imagemMapa = mapaCanvas.querySelector('img');
+
+  if (!imagemMapa) {
+    aplicarClusteringInicial();
+    return;
+  }
+
+  if (imagemMapa.complete && imagemMapa.naturalWidth > 0) {
+    aplicarClusteringInicial();
+    return;
+  }
+
+  imagemMapa.addEventListener('load', aplicarClusteringInicial, { once: true });
+  imagemMapa.addEventListener('error', function () {
+    console.warn('⚠️ Clustering inicial não aplicado: falha ao carregar a imagem do mapa.');
+  }, { once: true });
 }
 
 document.getElementById('busca').addEventListener('input', function(){
