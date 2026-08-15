@@ -375,6 +375,72 @@ function zoomOut(){
   aplicarZoom();
 }
 
+// ===============================
+// CLUSTERING — cálculo puro (Missão 03.1)
+// Agrupa pinos por proximidade real em pixels na tela, considerando
+// o zoom atual. Esta seção só CALCULA os grupos; não renderiza nada
+// no mapa e não é chamada por nenhuma outra função ainda — será
+// conectada em sub-missões futuras (03.2 em diante).
+// ===============================
+
+// Raio de colisão em pixels: dois pinos mais próximos que isso na
+// tela são considerados parte do mesmo grupo. Mesmo valor do hitbox
+// da Missão 02; fácil de recalibrar depois em dispositivo real.
+const RAIO_COLISAO_CLUSTER_PX = 36;
+
+// Converte a distância percentual (x/y, escala 0-100 usada em
+// atracoes.json) entre dois pontos do mapa para pixels realmente
+// renderizados na tela, usando o retângulo atual do .mapa-canvas
+// (já reflete o zoom aplicado via transform:scale). Usa largura e
+// altura do retângulo separadamente para cada eixo, porque o mapa
+// não é quadrado — isso evita distorcer a distância real entre X e Y.
+function distanciaEmPixelsNoMapa(p1, p2, retanguloMapa) {
+  const dxPx = ((p2.x - p1.x) / 100) * retanguloMapa.width;
+  const dyPx = ((p2.y - p1.y) / 100) * retanguloMapa.height;
+  return Math.sqrt(dxPx * dxPx + dyPx * dyPx);
+}
+
+// Agrupa uma lista de pontos { id, x, y, ... } por proximidade real
+// em pixels (união-busca). Não toca no DOM, não lê `atracoes` nem
+// `pins` diretamente — recebe os pontos prontos e devolve grupos.
+// Cada grupo é um array de pontos; grupos com 1 item = pino isolado.
+function calcularClusters(pontos, retanguloMapa, raioPx = RAIO_COLISAO_CLUSTER_PX) {
+  const n = pontos.length;
+  const pai = pontos.map((_, i) => i);
+
+  function encontrar(i) {
+    while (pai[i] !== i) {
+      pai[i] = pai[pai[i]];
+      i = pai[i];
+    }
+    return i;
+  }
+
+  function unir(i, j) {
+    const raizI = encontrar(i);
+    const raizJ = encontrar(j);
+    if (raizI !== raizJ) pai[raizI] = raizJ;
+  }
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const dist = distanciaEmPixelsNoMapa(pontos[i], pontos[j], retanguloMapa);
+      if (dist <= raioPx) {
+        unir(i, j);
+      }
+    }
+  }
+
+  const gruposPorRaiz = {};
+  pontos.forEach((ponto, i) => {
+    const raiz = encontrar(i);
+    if (!gruposPorRaiz[raiz]) gruposPorRaiz[raiz] = [];
+    gruposPorRaiz[raiz].push(ponto);
+  });
+
+  return Object.values(gruposPorRaiz);
+}
+
 document.getElementById('busca').addEventListener('input', function(){
   const termo = this.value.toLowerCase();
 
