@@ -441,6 +441,44 @@ function calcularClusters(pontos, retanguloMapa, raioPx = RAIO_COLISAO_CLUSTER_P
   return Object.values(gruposPorRaiz);
 }
 
+// ===============================
+// CLUSTERING — renderização visual (Missão 03.2)
+// Cria o elemento visual de um cluster já calculado por
+// calcularClusters(). Só aparência: nenhum addEventListener é
+// registrado aqui (sem clique, sem zoom automático, sem lista).
+// Esta função ainda não é chamada por nenhum outro ponto do app —
+// carregamento, zoom e filtro continuam exatamente como antes.
+// ===============================
+
+// Calcula o centro geométrico (média simples de x/y) de um grupo,
+// para posicionar o marcador do cluster no meio dos pinos que ele
+// representa.
+function centroDoGrupo(grupo) {
+  const somaX = grupo.reduce((soma, ponto) => soma + ponto.x, 0);
+  const somaY = grupo.reduce((soma, ponto) => soma + ponto.y, 0);
+  return {
+    x: somaX / grupo.length,
+    y: somaY / grupo.length,
+  };
+}
+
+// Cria (mas não insere sozinho no DOM nada além do próprio elemento
+// dentro de `mapaCanvasAlvo`) o marcador visual de um cluster.
+// Mostra somente a quantidade de atrações agrupadas.
+function criarMarcadorCluster(grupo, mapaCanvasAlvo) {
+  const centro = centroDoGrupo(grupo);
+
+  const marcador = document.createElement('div');
+  marcador.className = 'cluster';
+  marcador.style.left = `${centro.x}%`;
+  marcador.style.top = `${centro.y}%`;
+  marcador.textContent = grupo.length;
+
+  mapaCanvasAlvo.appendChild(marcador);
+
+  return marcador;
+}
+
 document.getElementById('busca').addEventListener('input', function(){
   const termo = this.value.toLowerCase();
 
