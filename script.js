@@ -381,17 +381,19 @@ function zoomOut(){
 }
 
 // ===============================
-// CLUSTERING — cálculo puro (Missão 03.1)
+// CLUSTERING — cálculo puro (Missão 03.1, algoritmo trocado na 03.3C)
 // Agrupa pinos por proximidade real em pixels na tela, considerando
 // o zoom atual. Esta seção só CALCULA os grupos; não renderiza nada
-// no mapa e não é chamada por nenhuma outra função ainda — será
-// conectada em sub-missões futuras (03.2 em diante).
+// no mapa.
 // ===============================
 
-// Raio de colisão em pixels: dois pinos mais próximos que isso na
-// tela são considerados parte do mesmo grupo. Mesmo valor do hitbox
-// da Missão 02; fácil de recalibrar depois em dispositivo real.
-const RAIO_COLISAO_CLUSTER_PX = 36;
+// Tamanho da célula de grade, em pixels: pontos que caem na mesma
+// célula viram um grupo. Substituiu o antigo raio de colisão por
+// distância (união-busca) porque esse método permitia efeito
+// dominó/transitividade — ver Missões 03.3A/03.3B. Valor inicial
+// calibrado por simulação com dados reais (03.3B); fácil de ajustar
+// depois em dispositivo real.
+const TAMANHO_CELULA_CLUSTER_PX = 24;
 
 // Converte a distância percentual (x/y, escala 0-100 usada em
 // atracoes.json) entre dois pontos do mapa para pixels realmente
@@ -399,51 +401,36 @@ const RAIO_COLISAO_CLUSTER_PX = 36;
 // (já reflete o zoom aplicado via transform:scale). Usa largura e
 // altura do retângulo separadamente para cada eixo, porque o mapa
 // não é quadrado — isso evita distorcer a distância real entre X e Y.
+// Não é mais usada por calcularClusters() (grid não compara pares),
+// mas permanece disponível — não foi pedida sua remoção.
 function distanciaEmPixelsNoMapa(p1, p2, retanguloMapa) {
   const dxPx = ((p2.x - p1.x) / 100) * retanguloMapa.width;
   const dyPx = ((p2.y - p1.y) / 100) * retanguloMapa.height;
   return Math.sqrt(dxPx * dxPx + dyPx * dyPx);
 }
 
-// Agrupa uma lista de pontos { id, x, y, ... } por proximidade real
-// em pixels (união-busca). Não toca no DOM, não lê `atracoes` nem
-// `pins` diretamente — recebe os pontos prontos e devolve grupos.
-// Cada grupo é um array de pontos; grupos com 1 item = pino isolado.
-function calcularClusters(pontos, retanguloMapa, raioPx = RAIO_COLISAO_CLUSTER_PX) {
-  const n = pontos.length;
-  const pai = pontos.map((_, i) => i);
+// Agrupa uma lista de pontos { id, x, y, ... } por célula de grade
+// (grid-based). Não toca no DOM, não lê `atracoes` nem `pins`
+// diretamente — recebe os pontos prontos e devolve grupos. Cada
+// grupo é um array de pontos; grupos com 1 item = pino isolado.
+// Sem comparação par a par e sem transitividade: dois pontos só
+// entram no mesmo grupo se caírem exatamente na mesma célula, o que
+// elimina o efeito dominó do união-busca por distância.
+function calcularClusters(pontos, retanguloMapa, tamanhoCelulaPx = TAMANHO_CELULA_CLUSTER_PX) {
+  const gruposPorCelula = {};
 
-  function encontrar(i) {
-    while (pai[i] !== i) {
-      pai[i] = pai[pai[i]];
-      i = pai[i];
-    }
-    return i;
-  }
+  pontos.forEach((ponto) => {
+    const px = (ponto.x / 100) * retanguloMapa.width;
+    const py = (ponto.y / 100) * retanguloMapa.height;
+    const coluna = Math.floor(px / tamanhoCelulaPx);
+    const linha = Math.floor(py / tamanhoCelulaPx);
+    const chave = `${coluna}_${linha}`;
 
-  function unir(i, j) {
-    const raizI = encontrar(i);
-    const raizJ = encontrar(j);
-    if (raizI !== raizJ) pai[raizI] = raizJ;
-  }
-
-  for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
-      const dist = distanciaEmPixelsNoMapa(pontos[i], pontos[j], retanguloMapa);
-      if (dist <= raioPx) {
-        unir(i, j);
-      }
-    }
-  }
-
-  const gruposPorRaiz = {};
-  pontos.forEach((ponto, i) => {
-    const raiz = encontrar(i);
-    if (!gruposPorRaiz[raiz]) gruposPorRaiz[raiz] = [];
-    gruposPorRaiz[raiz].push(ponto);
+    if (!gruposPorCelula[chave]) gruposPorCelula[chave] = [];
+    gruposPorCelula[chave].push(ponto);
   });
 
-  return Object.values(gruposPorRaiz);
+  return Object.values(gruposPorCelula);
 }
 
 // ===============================
