@@ -236,6 +236,27 @@ function mostrarAvisoPinosNovos(total) {
   mapaCanvas.appendChild(aviso);
 }
 
+// ---------------------------------------------------------------------
+// BOTTOM SHEET (mobile) — abrir/fechar a ficha da atração
+// (#titulo / #conteudo / #status). Só tem efeito visual dentro do
+// media query mobile em style.css; no desktop a classe é adicionada/
+// removida normalmente, mas não muda nada no layout.
+// ---------------------------------------------------------------------
+
+const fichaAtracao = document.getElementById('fichaAtracao');
+const botaoFecharFicha = document.getElementById('fecharFicha');
+
+function aplicarEstadoFicha(aberta) {
+  if (!fichaAtracao) return;
+  fichaAtracao.classList.toggle('aberta', aberta);
+}
+
+if (botaoFecharFicha) {
+  botaoFecharFicha.addEventListener('click', function () {
+    aplicarEstadoFicha(false);
+  });
+}
+
 function mostrar(id, elemento) {
   const atracao = atracoes[id];
 
@@ -294,6 +315,9 @@ function mostrar(id, elemento) {
     `<div class="status">${atracao.status || ''}</div>`;
 
   carregarERenderizarAvaliacoes(id);
+
+  // abre o bottom sheet (só tem efeito visual no mobile — ver style.css)
+  aplicarEstadoFicha(true);
 }
 
 // ===============================

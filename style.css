@@ -1082,4 +1082,55 @@ header{
     font-size:12px;
     min-width:150px;
   }
+
+  /* =========================
+     BOTTOM SHEET — ficha da atração (somente mobile)
+     Aplica-se apenas a #titulo/#conteudo/#status, que agora
+     vivem dentro de .ficha-atracao. Não afeta .favoritos-box,
+     .roteiro-box nem .instagram-box, que permanecem no fluxo
+     normal de .painel, sem alteração de comportamento.
+  ========================= */
+  .ficha-atracao{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    max-height:75vh;
+    background:white;
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -8px 24px rgba(0,0,0,.18);
+    padding:14px 20px calc(20px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    z-index:100000;
+    transform:translateY(110%);
+    transition:transform .3s ease;
+  }
+
+  .ficha-atracao.aberta{
+    transform:translateY(0);
+  }
+
+  .ficha-atracao-alca{
+    width:40px;
+    height:4px;
+    border-radius:4px;
+    background:#d5dde5;
+    margin:0 auto 12px;
+  }
+
+  .ficha-atracao-fechar{
+    position:absolute;
+    top:12px;
+    right:16px;
+    width:32px;
+    height:32px;
+    border:none;
+    border-radius:50%;
+    background:#e7f3ff;
+    color:#0b4f7a;
+    font-size:16px;
+    line-height:1;
+    cursor:pointer;
+  }
 }
