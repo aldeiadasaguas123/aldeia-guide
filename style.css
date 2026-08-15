@@ -1133,4 +1133,22 @@ header{
     line-height:1;
     cursor:pointer;
   }
+
+  /* =========================
+     HITBOX DOS PINOS (somente mobile)
+     Aumenta a área de toque para 36x36px sem alterar o
+     tamanho visual do pino (continua 20x20px). O pseudo-elemento
+     é invisível e centralizado no mesmo ponto do pino; o clique
+     nele é entregue ao próprio .pin, então nenhum JS muda.
+  ========================= */
+  .pin::before{
+    content:'';
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:36px;
+    height:36px;
+    transform:translate(-50%,-50%);
+    background:transparent;
+  }
 }
