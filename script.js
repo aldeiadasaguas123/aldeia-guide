@@ -396,6 +396,12 @@ function zoomOut(){
 // depois em dispositivo real.
 const TAMANHO_CELULA_CLUSTER_PX = 24;
 
+// Filtro de categoria atualmente selecionado ('todos' por padrão).
+// filtrar() atualiza esse valor; o clustering o usa para saber quais
+// atrações estão elegíveis (Missão 03.5). Não substitui nem duplica
+// a lógica de categorias existente — só guarda qual é o filtro atual.
+let filtroAtivo = 'todos';
+
 // Converte a distância percentual (x/y, escala 0-100 usada em
 // atracoes.json) entre dois pontos do mapa para pixels realmente
 // renderizados na tela, usando o retângulo atual do .mapa-canvas
@@ -491,6 +497,31 @@ function obterPontosParaClustering() {
     .map(([id, atracao]) => ({ id, x: atracao.x, y: atracao.y }));
 }
 
+// Verifica se um pino passa no filtro atualmente ativo, usando
+// exatamente os mesmos atributos (data-categoria / data-instagramavel)
+// e a mesma regra que filtrar() já aplica — sem duplicar a lista de
+// categorias nem inventar uma nova estrutura de dados.
+function pinPassaNoFiltroAtivo(pinElemento) {
+  if (!pinElemento) return false;
+
+  if (filtroAtivo === 'instagram') {
+    return pinElemento.dataset.instagramavel === 'sim';
+  }
+
+  return filtroAtivo === 'todos' || pinElemento.dataset.categoria === filtroAtivo;
+}
+
+// Igual a obterPontosParaClustering(), mas restrito às atrações que
+// também estão elegíveis pelo filtro ativo no momento (Missão 03.5).
+// É a lista que o clustering (zoom e filtro) deve usar a partir de
+// agora — nenhuma atração escondida pelo filtro participa de um grupo.
+function obterPontosVisiveisParaClustering() {
+  return obterPontosParaClustering().filter(function (ponto) {
+    const pinElemento = mapaCanvas.querySelector(`.pin[data-id="${ponto.id}"]`);
+    return pinPassaNoFiltroAtivo(pinElemento);
+  });
+}
+
 // Calcula os grupos e aplica visualmente: esconde os pinos de cada
 // grupo com 2+ atrações e desenha o marcador de cluster no lugar.
 // Pinos que ficam sozinhos em seu grupo não são tocados — continuam
@@ -572,10 +603,13 @@ function restaurarVisibilidadeDosPins(pontos) {
 }
 
 // Recalcula e redesenha o clustering para o retângulo real atual do
-// mapa (já reflete o zoom aplicado). Chamada por aplicarZoom() a
-// cada mudança de escala.
+// mapa (já reflete o zoom aplicado), considerando somente as
+// atrações elegíveis pelo filtro ativo (Missão 03.5). Chamada por
+// aplicarZoom() a cada mudança de escala e por filtrar() a cada
+// troca de categoria — é o mesmo cálculo nos dois casos, só muda a
+// lista de pontos enviada a ele.
 function recalcularClusteringAoZoom() {
-  const pontos = obterPontosParaClustering();
+  const pontos = obterPontosVisiveisParaClustering();
   const retanguloMapa = mapaCanvas.getBoundingClientRect();
 
   if (!retanguloMapa.width || !retanguloMapa.height) {
@@ -612,6 +646,8 @@ document.getElementById('busca').addEventListener('input', function(){
 });
 
 function filtrar(tipo){
+  filtroAtivo = tipo;
+
   document.querySelectorAll('.pin').forEach(pin => {
     if (tipo === 'instagram') {
       pin.style.display = pin.dataset.instagramavel === 'sim' ? 'block' : 'none';
@@ -623,6 +659,8 @@ function filtrar(tipo){
         ? 'block'
         : 'none';
   });
+
+  recalcularClusteringAoZoom();
 }
 
 // ===============================
