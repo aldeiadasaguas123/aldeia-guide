@@ -364,6 +364,7 @@ window.addEventListener('load', atualizarFavoritos);
 // ===============================
 
 const mapaCanvas = document.getElementById('mapaCanvas');
+const mapaWrapper = document.getElementById('mapaWrapper');
 let zoom = 1;
 
 function aplicarZoom(){
@@ -472,6 +473,14 @@ function criarMarcadorCluster(grupo, mapaCanvasAlvo) {
   marcador.style.left = `${centro.x}%`;
   marcador.style.top = `${centro.y}%`;
   marcador.textContent = grupo.length;
+
+  // Missão 03.6: toque no cluster aproxima o zoom naquela região —
+  // não abre nenhuma ficha de atração (isso é exclusivo de mostrar(),
+  // chamada só pelo clique nos pinos individuais).
+  marcador.addEventListener('click', function (event) {
+    event.stopPropagation();
+    tocarNoCluster(grupo);
+  });
 
   mapaCanvasAlvo.appendChild(marcador);
 
@@ -634,6 +643,46 @@ function recalcularClusteringAoZoom() {
 
     criarMarcadorCluster(grupo, mapaCanvas);
   });
+}
+
+// ===============================
+// CLUSTERING — interação com o marcador (Missão 03.6)
+// Não cria um novo sistema de zoom nem de posicionamento: reutiliza
+// zoomIn() (que já dispara aplicarZoom() -> recalcularClusteringAoZoom())
+// e usa a rolagem nativa do .mapa-wrapper (já overflow:auto) para
+// centralizar a região tocada.
+// ===============================
+
+// Rola o .mapa-wrapper para centralizar, na viewport visível, o ponto
+// percentual informado — usando o retângulo real atual do mapa
+// (mesmo cálculo já usado no clustering: x%/y% * largura/altura
+// renderizada, que já reflete o zoom aplicado).
+function centralizarNoPontoDoMapa(centroPercentual) {
+  const retanguloMapa = mapaCanvas.getBoundingClientRect();
+
+  if (!retanguloMapa.width || !retanguloMapa.height) return;
+
+  const px = (centroPercentual.x / 100) * retanguloMapa.width;
+  const py = (centroPercentual.y / 100) * retanguloMapa.height;
+
+  mapaWrapper.scrollTo({
+    left: px - mapaWrapper.clientWidth / 2,
+    top: py - mapaWrapper.clientHeight / 2,
+    behavior: 'smooth',
+  });
+}
+
+// Reage ao toque num marcador de cluster: aproxima um passo do zoom
+// já existente e centraliza a região do grupo tocado. Não abre
+// nenhuma ficha de atração — isso continua sendo exclusivo de
+// mostrar(), chamada só pelo clique nos pinos individuais.
+function tocarNoCluster(grupo) {
+  if (zoom >= 3) return; // já no zoom máximo — não há nova aproximação a fazer
+
+  const centro = centroDoGrupo(grupo);
+
+  zoomIn(); // já aplica a escala e recalcula o clustering (03.4/03.5)
+  centralizarNoPontoDoMapa(centro);
 }
 
 document.getElementById('busca').addEventListener('input', function(){
