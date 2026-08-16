@@ -368,6 +368,7 @@ let zoom = 1;
 
 function aplicarZoom(){
   mapaCanvas.style.transform = `scale(${zoom})`;
+  recalcularClusteringAoZoom();
 }
 
 function zoomIn(){
@@ -539,6 +540,66 @@ function agendarClusteringInicial() {
   imagemMapa.addEventListener('error', function () {
     console.warn('⚠️ Clustering inicial não aplicado: falha ao carregar a imagem do mapa.');
   }, { once: true });
+}
+
+// ===============================
+// CLUSTERING — recálculo ao mudar o zoom (Missão 03.4)
+// Reaproveita calcularClusters() e criarMarcadorCluster() (intocadas).
+// Não duplica a lógica de espera pelo carregamento da imagem, porque
+// no momento em que o zoom pode ser acionado a imagem já carregou
+// (os botões só ficam utilizáveis depois que a página está pronta).
+// ===============================
+
+// Remove os marcadores de cluster desenhados no cálculo anterior,
+// sem tocar nos pinos individuais.
+function removerMarcadoresClusterAtuais() {
+  mapaCanvas.querySelectorAll('.cluster').forEach(function (marcador) {
+    marcador.remove();
+  });
+}
+
+// Restaura a visibilidade dos pinos com coordenada real, para que
+// uma atração que deixou de pertencer a um cluster (zoom mudou)
+// volte a aparecer como pino individual. Não toca em pinos sem
+// coordenada (pinos novos aguardando calibração).
+function restaurarVisibilidadeDosPins(pontos) {
+  pontos.forEach(function (ponto) {
+    const pinElemento = mapaCanvas.querySelector(`.pin[data-id="${ponto.id}"]`);
+    if (pinElemento) {
+      pinElemento.style.display = '';
+    }
+  });
+}
+
+// Recalcula e redesenha o clustering para o retângulo real atual do
+// mapa (já reflete o zoom aplicado). Chamada por aplicarZoom() a
+// cada mudança de escala.
+function recalcularClusteringAoZoom() {
+  const pontos = obterPontosParaClustering();
+  const retanguloMapa = mapaCanvas.getBoundingClientRect();
+
+  if (!retanguloMapa.width || !retanguloMapa.height) {
+    console.warn('⚠️ Clustering não recalculado: dimensões do mapa indisponíveis.');
+    return;
+  }
+
+  removerMarcadoresClusterAtuais();
+  restaurarVisibilidadeDosPins(pontos);
+
+  const grupos = calcularClusters(pontos, retanguloMapa);
+
+  grupos.forEach(function (grupo) {
+    if (grupo.length < 2) return; // pino isolado — permanece visível
+
+    grupo.forEach(function (ponto) {
+      const pinElemento = mapaCanvas.querySelector(`.pin[data-id="${ponto.id}"]`);
+      if (pinElemento) {
+        pinElemento.style.display = 'none';
+      }
+    });
+
+    criarMarcadorCluster(grupo, mapaCanvas);
+  });
 }
 
 document.getElementById('busca').addEventListener('input', function(){
