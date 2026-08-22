@@ -215,17 +215,9 @@ function criarPin(id, atracao) {
     mostrar(id, this);
   });
 
-  // ===============================
-  // ARRASTAR PIN (modo calibração)
-  // ===============================
-  pin.addEventListener('mousedown', function(event) {
-    pinArrastando = pin;
-
-    const nome = pin.dataset.nome || 'Atração sem nome';
-    atracaoSelecionada.textContent = `📍 ${nome}`;
-
-    event.preventDefault();
-  });
+  // O arraste de calibração (mousedown) é registrado separadamente por
+  // ativarCalibracaoDosPins(), chamada logo depois que todos os pinos
+  // já existem — não duplicar o listener aqui (Missão 05.2).
 
   mapaCanvas.appendChild(pin);
 
@@ -397,6 +389,12 @@ function zoomOut(){
 // depois em dispositivo real.
 const TAMANHO_CELULA_CLUSTER_PX = 24;
 
+// Limite de fusão local entre células vizinhas (Missão 03.9): corrige
+// o artefato de borda do grid puro (duas atrações muito próximas que
+// caem em células diferentes) sem reintroduzir transitividade. Valor
+// validado por simulação com dados reais na Missão 03.8.
+const LIMITE_REFINAMENTO_BORDA_CLUSTER_PX = 14;
+
 // Filtro de categoria atualmente selecionado ('todos' por padrão).
 // filtrar() atualiza esse valor; o clustering o usa para saber quais
 // atrações estão elegíveis (Missão 03.5). Não substitui nem duplica
@@ -417,13 +415,91 @@ function distanciaEmPixelsNoMapa(p1, p2, retanguloMapa) {
   return Math.sqrt(dxPx * dxPx + dyPx * dyPx);
 }
 
+// Refinamento local de borda (Missão 03.9): corrige o artefato em que
+// duas atrações muito próximas ficam em células vizinhas diferentes e
+// nunca se agrupam no grid puro. NÃO usa união-busca e NÃO permite
+// transitividade (A funde com B não abre caminho para B fundir com
+// C) — cada célula original participa de, no máximo, UMA fusão nesta
+// passada. Isso garante, por construção, que o maior grupo resultante
+// nunca combine mais que duas células originais, evitando reproduzir
+// o efeito dominó descartado nas Missões 03.3A/03.8.
+function refinarBordasDeCelula(gruposPorCelula, retanguloMapa, limitePx) {
+  const chaves = Object.keys(gruposPorCelula);
+
+  function paraColunaLinha(chave) {
+    const partes = chave.split('_');
+    return { coluna: parseInt(partes[0], 10), linha: parseInt(partes[1], 10) };
+  }
+
+  // 1) Candidatos: pares de células adjacentes (Chebyshev == 1) cuja
+  // menor distância real entre um ponto de cada uma seja <= limitePx.
+  const candidatos = [];
+  for (let i = 0; i < chaves.length; i++) {
+    for (let j = i + 1; j < chaves.length; j++) {
+      const chaveA = chaves[i];
+      const chaveB = chaves[j];
+      const posA = paraColunaLinha(chaveA);
+      const posB = paraColunaLinha(chaveB);
+      const distanciaCelulas = Math.max(
+        Math.abs(posA.coluna - posB.coluna),
+        Math.abs(posA.linha - posB.linha)
+      );
+      if (distanciaCelulas !== 1) continue; // só células adjacentes
+
+      let menorDistancia = null;
+      gruposPorCelula[chaveA].forEach((pontoA) => {
+        gruposPorCelula[chaveB].forEach((pontoB) => {
+          const d = distanciaEmPixelsNoMapa(pontoA, pontoB, retanguloMapa);
+          if (menorDistancia === null || d < menorDistancia) {
+            menorDistancia = d;
+          }
+        });
+      });
+
+      if (menorDistancia !== null && menorDistancia <= limitePx) {
+        candidatos.push({ chaveA, chaveB, distancia: menorDistancia });
+      }
+    }
+  }
+
+  // 2) Do par mais próximo para o mais distante.
+  candidatos.sort((a, b) => a.distancia - b.distancia);
+
+  // 3) Funde só quem ainda não participou de nenhuma fusão nesta
+  // passada — no máximo uma fusão por célula original, sem
+  // encadeamento (sem nova rodada sobre os grupos já fundidos).
+  const jaFundida = {};
+  const representanteDe = {};
+  chaves.forEach((chave) => { representanteDe[chave] = chave; });
+
+  candidatos.forEach((candidato) => {
+    if (jaFundida[candidato.chaveA] || jaFundida[candidato.chaveB]) return;
+    representanteDe[candidato.chaveB] = candidato.chaveA;
+    jaFundida[candidato.chaveA] = true;
+    jaFundida[candidato.chaveB] = true;
+  });
+
+  // 4) Monta os grupos finais a partir dos representantes.
+  const gruposFinais = {};
+  chaves.forEach((chave) => {
+    const representante = representanteDe[chave];
+    if (!gruposFinais[representante]) gruposFinais[representante] = [];
+    gruposFinais[representante].push(...gruposPorCelula[chave]);
+  });
+
+  return Object.values(gruposFinais);
+}
+
 // Agrupa uma lista de pontos { id, x, y, ... } por célula de grade
 // (grid-based). Não toca no DOM, não lê `atracoes` nem `pins`
 // diretamente — recebe os pontos prontos e devolve grupos. Cada
 // grupo é um array de pontos; grupos com 1 item = pino isolado.
 // Sem comparação par a par e sem transitividade: dois pontos só
 // entram no mesmo grupo se caírem exatamente na mesma célula, o que
-// elimina o efeito dominó do união-busca por distância.
+// elimina o efeito dominó do união-busca por distância. Desde a
+// Missão 03.9, o resultado passa por um refinamento local adicional
+// (ver refinarBordasDeCelula) que corrige parte do artefato de borda,
+// sem reintroduzir transitividade.
 function calcularClusters(pontos, retanguloMapa, tamanhoCelulaPx = TAMANHO_CELULA_CLUSTER_PX) {
   const gruposPorCelula = {};
 
@@ -438,7 +514,7 @@ function calcularClusters(pontos, retanguloMapa, tamanhoCelulaPx = TAMANHO_CELUL
     gruposPorCelula[chave].push(ponto);
   });
 
-  return Object.values(gruposPorCelula);
+  return refinarBordasDeCelula(gruposPorCelula, retanguloMapa, LIMITE_REFINAMENTO_BORDA_CLUSTER_PX);
 }
 
 // ===============================
