@@ -871,12 +871,20 @@ document.addEventListener('mouseup', function() {
 
 if (botaoCopiar) {
   botaoCopiar.addEventListener('click', function() {
-    if (ultimaX === null || ultimaY === null) {
-      alert('📍 Primeiro arraste um pin.');
+    if (!pinSelecionado) {
+      alert('📍 Primeiro selecione uma atração.');
       return;
     }
 
-    const texto = `X: ${ultimaX.toFixed(2)}% | Y: ${ultimaY.toFixed(2)}%`;
+    const id = pinSelecionado.dataset.id || pinSelecionado.dataset.nome;
+    const dados = atracoesJSON[id];
+
+    if (!dados || dados.x === null || dados.x === undefined || dados.y === null || dados.y === undefined) {
+      alert('📍 Esta atração ainda não tem coordenadas definidas.');
+      return;
+    }
+
+    const texto = `X: ${dados.x.toFixed(2)}% | Y: ${dados.y.toFixed(2)}%`;
 
     navigator.clipboard.writeText(texto);
 
