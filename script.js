@@ -212,6 +212,12 @@ function criarPin(id, atracao) {
   // ABRIR INFORMAÇÕES
   // ===============================
   pin.addEventListener('click', function() {
+    // Missão 05.6B: o navegador dispara 'click' depois de mousedown+mouseup
+    // mesmo quando houve arraste real (o mouseup solta em cima do próprio
+    // pino). Se houveMovimento for true, foi um arrasto de calibração, não
+    // um clique do visitante — não abrir a ficha.
+    if (houveMovimento) return;
+
     mostrar(id, this);
   });
 
@@ -802,6 +808,13 @@ const botaoSalvar = document.getElementById('salvarCoordenadas');
 function ativarCalibracaoDosPins(){
   document.querySelectorAll('.pin').forEach(pin => {
     pin.addEventListener('mousedown', function(event) {
+      // Missão 05.5B: painel de calibração colapsado = fora do modo
+      // calibração. Não inicia arraste nem altera nenhum estado — o
+      // clique simples continua livre para abrir a ficha (mostrar()).
+      if (calibracaoCorpo && calibracaoCorpo.classList.contains('colapsado')) {
+        return;
+      }
+
       pinSelecionado = pin;
       pinArrastando = pin;
       houveMovimento = false;
