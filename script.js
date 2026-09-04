@@ -7,6 +7,11 @@ console.log('🚨 SCRIPT.JS ESTÁ SENDO EXECUTADO!');
 const mapaCanvasCalibracao = document.getElementById('mapaCanvas');
 const coordenadas = document.getElementById('coordenadas');
 
+// Declarada aqui (não mais perto do resto do ciclo de arraste, mais
+// abaixo) porque aplicarEstadoCalibracao() já precisa lê-la/escrevê-la
+// na primeira chamada, na carga da página (Missão 06.6B).
+let houveMovimento = false;
+
 mapaCanvasCalibracao.addEventListener('mousemove', function(event) {
   const rect = mapaCanvasCalibracao.getBoundingClientRect();
 
@@ -26,6 +31,15 @@ const calibracaoCorpo = document.getElementById('calibracaoCorpo');
 function aplicarEstadoCalibracao(colapsado) {
   calibracaoCorpo.classList.toggle('colapsado', colapsado);
   btnMinimizarCalibracao.textContent = colapsado ? '➕' : '➖';
+
+  // Missão 06.6B: colapsar o painel é o encerramento lógico do ciclo de
+  // arraste. Sem isso, houveMovimento podia ficar preso em true (setado
+  // por um arrasto anterior e nunca resetado, já que o mousedown que o
+  // reseta é bloqueado pelo próprio painel colapsado — Missão 05.5B),
+  // bloqueando indevidamente o clique normal do visitante depois (05.6B).
+  if (colapsado) {
+    houveMovimento = false;
+  }
 }
 
 if (btnMinimizarCalibracao && calibracaoCorpo) {
@@ -799,7 +813,6 @@ function filtrar(tipo){
 // ===============================
 
 let pinSelecionado = null;
-let houveMovimento = false;
 
 const botaoCopiar = document.getElementById('copiarCoordenadas');
 const botaoSalvar = document.getElementById('salvarCoordenadas');
