@@ -86,9 +86,28 @@ let ultimaY = null;
 
 const atracaoSelecionada = document.getElementById('atracaoSelecionada');
 
+// Carrega pinos-core.js dinamicamente, com o mesmo esquema de
+// cache-busting que o index.html já usa para script.js/style.css —
+// assim não é preciso adicionar um <script> novo no index.html
+// (Missão 07.4). Resolve quando o arquivo termina de carregar,
+// garantindo que criarElementoPin() já existe antes do primeiro pino
+// ser criado.
+function carregarPinosCore() {
+  return new Promise(function (resolve, reject) {
+    const scriptTag = document.createElement('script');
+    scriptTag.src = './pinos-core.js?v=' + Date.now();
+    scriptTag.onload = resolve;
+    scriptTag.onerror = function () {
+      reject(new Error('Falha ao carregar pinos-core.js'));
+    };
+    document.body.appendChild(scriptTag);
+  });
+}
+
 // cache-busting: sem isso, dar F5 pode continuar mostrando uma versão
 // antiga do atracoes.json que ficou guardada em cache pelo navegador
-fetch('./atracoes.json?v=' + Date.now())
+carregarPinosCore()
+  .then(() => fetch('./atracoes.json?v=' + Date.now()))
   .then(response => {
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
@@ -194,32 +213,16 @@ function criarPin(id, atracao) {
     atracao.x === null || atracao.y === null ||
     atracao.x === undefined || atracao.y === undefined;
 
-  const pin = document.createElement('div');
-
-  // classe de cor por categoria (ver style.css: .pin.familia, .pin.radical, etc.)
-  pin.className = `pin ${atracao.categoria || ''}`;
-
-  pin.dataset.nome = atracao.titulo.toLowerCase();
-  pin.dataset.categoria = atracao.categoria || '';
-  pin.dataset.id = id;
-  pin.dataset.instagramavel = atracao.instagramavel ? 'sim' : 'nao';
+  // Missão 07.4: a criação visual do pino (elemento, classe, dataset,
+  // posicionamento) agora vive em pinos-core.js — compartilhável no
+  // futuro por um eventual admin.js, sem conhecer calibração/clustering/
+  // bottom sheet/GPS/roteiro/filtros. Aqui só decidimos o índice da
+  // fileira de espera e incrementamos o contador, que continua sendo
+  // um estado exclusivo deste lado (visitante/calibração).
+  const pin = criarElementoPin(id, atracao, contadorPinosNovos);
 
   if (semCoordenadas) {
-    // PINO NOVO: ainda não tem posição real -> nasce numa fileira de
-    // espera na parte de baixo do mapa, com visual tracejado, pra você
-    // arrastar até o lugar certo usando o Modo Calibração.
-    pin.classList.add('pin-novo');
-
-    const x = 6 + (contadorPinosNovos % 11) * 8.5;
-    const y = 97;
     contadorPinosNovos++;
-
-    pin.style.left = `${x}%`;
-    pin.style.top = `${y}%`;
-    pin.title = `⚠️ ${atracao.titulo} — ainda sem posição definida, arraste-me!`;
-  } else {
-    pin.style.left = `${atracao.x}%`;
-    pin.style.top = `${atracao.y}%`;
   }
 
   // ===============================
