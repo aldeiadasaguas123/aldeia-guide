@@ -1,90 +1,14 @@
 console.log('🚨 SCRIPT.JS ESTÁ SENDO EXECUTADO!');
 
 // ===============================
-// MODO CALIBRAÇÃO
+// DADOS DAS ATRAÇÕES
 // ===============================
-
-const mapaCanvasCalibracao = document.getElementById('mapaCanvas');
-const coordenadas = document.getElementById('coordenadas');
-
-// Declarada aqui (não mais perto do resto do ciclo de arraste, mais
-// abaixo) porque aplicarEstadoCalibracao() já precisa lê-la/escrevê-la
-// na primeira chamada, na carga da página (Missão 06.6B).
-let houveMovimento = false;
-
-mapaCanvasCalibracao.addEventListener('mousemove', function(event) {
-  const rect = mapaCanvasCalibracao.getBoundingClientRect();
-
-  const x = ((event.clientX - rect.left) / rect.width) * 100;
-  const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-  coordenadas.textContent = `X: ${x.toFixed(2)}% | Y: ${y.toFixed(2)}%`;
-});
-
-// ---------------------------------------------------------------------
-// MINIMIZAR / EXPANDIR o painel de calibração (pra não tampar o mapa)
-// ---------------------------------------------------------------------
-
-const btnMinimizarCalibracao = document.getElementById('minimizarCalibracao');
-const calibracaoCorpo = document.getElementById('calibracaoCorpo');
-
-function aplicarEstadoCalibracao(colapsado) {
-  calibracaoCorpo.classList.toggle('colapsado', colapsado);
-  btnMinimizarCalibracao.textContent = colapsado ? '➕' : '➖';
-
-  // Missão 06.6B: colapsar o painel é o encerramento lógico do ciclo de
-  // arraste. Sem isso, houveMovimento podia ficar preso em true (setado
-  // por um arrasto anterior e nunca resetado, já que o mousedown que o
-  // reseta é bloqueado pelo próprio painel colapsado — Missão 05.5B),
-  // bloqueando indevidamente o clique normal do visitante depois (05.6B).
-  if (colapsado) {
-    houveMovimento = false;
-  }
-}
-
-if (btnMinimizarCalibracao && calibracaoCorpo) {
-  // lembra o estado entre recarregamentos da página
-  aplicarEstadoCalibracao(localStorage.getItem('aldeiaCalibPainelColapsado') === 'sim');
-
-  btnMinimizarCalibracao.addEventListener('click', function () {
-    const novoEstado = !calibracaoCorpo.classList.contains('colapsado');
-    aplicarEstadoCalibracao(novoEstado);
-    localStorage.setItem('aldeiaCalibPainelColapsado', novoEstado ? 'sim' : 'nao');
-  });
-}
-
-// ---------------------------------------------------------------------
-// MOSTRAR / ESCONDER a seção de calibração GPS (fica escondida por
-// padrão — só é necessária no dia em que alguém for ao parque calibrar)
-// ---------------------------------------------------------------------
-
-const btnToggleGps = document.getElementById('toggleGps');
-const gpsConteudo = document.getElementById('gpsConteudo');
-
-function aplicarEstadoGps(aberto) {
-  gpsConteudo.classList.toggle('oculto', !aberto);
-  btnToggleGps.textContent = aberto
-    ? '📡 Calibração GPS ▾ (clique pra recolher)'
-    : '📡 Calibração GPS ▸ (fazer depois, no parque)';
-}
-
-if (btnToggleGps && gpsConteudo) {
-  aplicarEstadoGps(localStorage.getItem('aldeiaCalibGpsAberto') === 'sim');
-
-  btnToggleGps.addEventListener('click', function () {
-    const novoEstado = gpsConteudo.classList.contains('oculto');
-    aplicarEstadoGps(novoEstado);
-    localStorage.setItem('aldeiaCalibGpsAberto', novoEstado ? 'sim' : 'nao');
-  });
-}
+// A calibração do mapa foi movida para o ambiente administrativo
+// (admin.html / admin.js / admin.css) na Fase 07.5-07.6. Este arquivo
+// contém apenas a experiência do visitante.
 
 let atracoesJSON = {};
 let atracoes = {};
-let pinArrastando = null;
-let ultimaX = null;
-let ultimaY = null;
-
-const atracaoSelecionada = document.getElementById('atracaoSelecionada');
 
 // Carrega pinos-core.js dinamicamente, com o mesmo esquema de
 // cache-busting que o index.html já usa para script.js/style.css —
@@ -120,20 +44,12 @@ carregarPinosCore()
 
     console.log('✅ ATRAÇÕES CARREGADAS DO JSON:', atracoes);
 
-    aplicarRascunhoSeExistir();
-
     Object.entries(atracoes).forEach(([id, atracao]) => {
       criarPin(id, atracao);
     });
 
-    mostrarAvisoPinosNovos(contadorPinosNovos);
-
-    ativarCalibracaoDosPins();
     renderChecklistRoteiro();
-    popularSelectGps();
-    atualizarStatusCalibracaoGps();
     renderGaleriaInstagram();
-    atualizarContadorPendentes();
 
     // Missão 03.3 — clustering só na renderização inicial (ainda não
     // reage a zoom/filtro). Espera a imagem do mapa carregar antes de
@@ -143,63 +59,6 @@ carregarPinosCore()
   .catch(error => {
     console.error('❌ ERRO AO CARREGAR ATRACOES.JSON:', error);
   });
-
-// ---------------------------------------------------------------------
-// RASCUNHO AUTOMÁTICO — toda posição arrastada é salva sozinha aqui,
-// então dar F5 sem ter clicado em "Salvar" NUNCA mais perde trabalho.
-// ---------------------------------------------------------------------
-
-const CHAVE_RASCUNHO = 'aldeiaRascunhoPosicoes';
-
-function salvarRascunho() {
-  const posicoes = {};
-  Object.entries(atracoesJSON).forEach(([id, a]) => {
-    if (a.x !== null && a.y !== null && a.x !== undefined && a.y !== undefined) {
-      posicoes[id] = { x: a.x, y: a.y };
-    }
-  });
-  localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(posicoes));
-}
-
-function aplicarRascunhoSeExistir() {
-  const bruto = localStorage.getItem(CHAVE_RASCUNHO);
-  if (!bruto) return;
-
-  let posicoes;
-  try {
-    posicoes = JSON.parse(bruto);
-  } catch {
-    return;
-  }
-
-  // só pergunta se o rascunho tiver alguma posição DIFERENTE do arquivo carregado
-  const temDiferenca = Object.entries(posicoes).some(([id, p]) => {
-    const atual = atracoesJSON[id];
-    return atual && (atual.x !== p.x || atual.y !== p.y);
-  });
-
-  if (!temDiferenca) return;
-
-  const restaurar = confirm(
-    '💾 Encontrei posições de pinos salvas automaticamente neste navegador ' +
-    '(de uma sessão anterior que talvez não tenha sido baixada/substituída).\n\n' +
-    'Quer restaurar essas posições agora, por cima do atracoes.json atual?'
-  );
-
-  if (!restaurar) {
-    localStorage.removeItem(CHAVE_RASCUNHO);
-    return;
-  }
-
-  Object.entries(posicoes).forEach(([id, p]) => {
-    if (atracoesJSON[id]) {
-      atracoesJSON[id].x = p.x;
-      atracoesJSON[id].y = p.y;
-    }
-  });
-
-  console.log('♻️ Rascunho restaurado por cima do atracoes.json carregado.');
-}
 
 let contadorPinosNovos = 0; // usado para espalhar os pinos sem posição numa fileira
 
@@ -228,32 +87,16 @@ function criarPin(id, atracao) {
   // ===============================
   // ABRIR INFORMAÇÕES
   // ===============================
+  // A guarda de houveMovimento saiu daqui na Fase 07.6: o arraste de
+  // calibração não existe mais no visitante, então um clique num pino é
+  // sempre um clique do visitante.
   pin.addEventListener('click', function() {
-    // Missão 05.6B: o navegador dispara 'click' depois de mousedown+mouseup
-    // mesmo quando houve arraste real (o mouseup solta em cima do próprio
-    // pino). Se houveMovimento for true, foi um arrasto de calibração, não
-    // um clique do visitante — não abrir a ficha.
-    if (houveMovimento) return;
-
     mostrar(id, this);
   });
-
-  // O arraste de calibração (mousedown) é registrado separadamente por
-  // ativarCalibracaoDosPins(), chamada logo depois que todos os pinos
-  // já existem — não duplicar o listener aqui (Missão 05.2).
 
   mapaCanvas.appendChild(pin);
 
   console.log(`📍 Pin criado: ${id} | X: ${atracao.x} | Y: ${atracao.y}${semCoordenadas ? ' (fileira de espera)' : ''}`);
-}
-
-function mostrarAvisoPinosNovos(total) {
-  if (total === 0) return;
-
-  const aviso = document.createElement('div');
-  aviso.className = 'aviso-pinos-novos';
-  aviso.textContent = `⚠️ ${total} pino(s) novo(s) aguardando posição — arraste-os do rodapé do mapa`;
-  mapaCanvas.appendChild(aviso);
 }
 
 // ---------------------------------------------------------------------
@@ -811,165 +654,6 @@ function filtrar(tipo){
   recalcularClusteringAoZoom();
 }
 
-// ===============================
-// ARRASTAR/CALIBRAR PINOS
-// ===============================
-
-let pinSelecionado = null;
-
-const botaoCopiar = document.getElementById('copiarCoordenadas');
-const botaoSalvar = document.getElementById('salvarCoordenadas');
-
-// precisa ser chamado depois que os pinos são criados dinamicamente
-function ativarCalibracaoDosPins(){
-  document.querySelectorAll('.pin').forEach(pin => {
-    pin.addEventListener('mousedown', function(event) {
-      // Missão 05.5B: painel de calibração colapsado = fora do modo
-      // calibração. Não inicia arraste nem altera nenhum estado — o
-      // clique simples continua livre para abrir a ficha (mostrar()).
-      if (calibracaoCorpo && calibracaoCorpo.classList.contains('colapsado')) {
-        return;
-      }
-
-      pinSelecionado = pin;
-      pinArrastando = pin;
-      houveMovimento = false;
-
-      const nome = pin.dataset.nome || 'Atração sem nome';
-
-      if (atracaoSelecionada) {
-        atracaoSelecionada.textContent = `📍 ${nome}`;
-      }
-
-      event.preventDefault();
-    });
-  });
-}
-
-document.addEventListener('mousemove', function(event) {
-  if (!pinArrastando) return;
-
-  houveMovimento = true;
-
-  const rect = mapaCanvasCalibracao.getBoundingClientRect();
-
-  let x = ((event.clientX - rect.left) / rect.width) * 100;
-  let y = ((event.clientY - rect.top) / rect.height) * 100;
-
-  x = Math.max(0, Math.min(100, x));
-  y = Math.max(0, Math.min(100, y));
-
-  ultimaX = x;
-  ultimaY = y;
-
-  pinArrastando.style.left = `${x}%`;
-  pinArrastando.style.top = `${y}%`;
-
-  if (coordenadas) {
-    coordenadas.textContent = `X: ${x.toFixed(2)}% | Y: ${y.toFixed(2)}%`;
-  }
-});
-
-document.addEventListener('mouseup', function() {
-  if (!pinArrastando) return;
-
-  const id = pinArrastando.dataset.id || pinArrastando.dataset.nome;
-
-  // só grava se realmente houve arrasto (evita gravar coordenada antiga
-  // por engano num clique simples, sem mover o mouse)
-  if (houveMovimento && atracoesJSON[id]) {
-    atracoesJSON[id].x = Number(ultimaX.toFixed(2));
-    atracoesJSON[id].y = Number(ultimaY.toFixed(2));
-
-    salvarRascunho();
-    atualizarContadorPendentes();
-
-    console.log(
-      '📍 Posição gravada em memória + rascunho local:', id,
-      'X:', ultimaX?.toFixed(2),
-      'Y:', ultimaY?.toFixed(2)
-    );
-  }
-
-  pinArrastando = null;
-});
-
-// ===============================
-// COPIAR COORDENADAS
-// ===============================
-
-if (botaoCopiar) {
-  botaoCopiar.addEventListener('click', function() {
-    if (!pinSelecionado) {
-      alert('📍 Primeiro selecione uma atração.');
-      return;
-    }
-
-    const id = pinSelecionado.dataset.id || pinSelecionado.dataset.nome;
-    const dados = atracoesJSON[id];
-
-    if (!dados || dados.x === null || dados.x === undefined || dados.y === null || dados.y === undefined) {
-      alert('📍 Esta atração ainda não tem coordenadas definidas.');
-      return;
-    }
-
-    const texto = `X: ${dados.x.toFixed(2)}% | Y: ${dados.y.toFixed(2)}%`;
-
-    navigator.clipboard.writeText(texto);
-
-    botaoCopiar.textContent = '✅ Copiado!';
-
-    setTimeout(() => {
-      botaoCopiar.textContent = '📋 Copiar coordenadas';
-    }, 1500);
-  });
-}
-
-// ===============================
-// SALVAR TODAS AS POSIÇÕES
-// ===============================
-// Diferente da versão anterior, este botão NÃO salva só o último pino
-// selecionado — ele baixa o atracoes.json com TODAS as posições
-// arrastadas até agora na sessão (cada arrasto já vai sendo gravado em
-// memória sozinho, ver mouseup acima). Então o fluxo correto é:
-// arrastar quantos pinos quiser, à vontade, e só no final clicar aqui
-// UMA VEZ pra baixar o arquivo completo.
-
-function atualizarContadorPendentes() {
-  const label = document.getElementById('contadorPendentes');
-  if (!label) return;
-
-  const total = Object.values(atracoesJSON).filter(a => a.x !== null && a.y !== null).length;
-  label.textContent = `${total} posições prontas para salvar`;
-}
-
-if (botaoSalvar) {
-  botaoSalvar.addEventListener('click', function() {
-    const jsonAtualizado = JSON.stringify(atracoesJSON, null, 2);
-    const arquivo = new Blob([jsonAtualizado], { type: 'application/json' });
-    const url = URL.createObjectURL(arquivo);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'atracoes.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    botaoSalvar.textContent = '✅ Baixado! Agora substitua o arquivo antigo';
-
-    setTimeout(() => {
-      botaoSalvar.textContent = '💾 Salvar TODAS as posições';
-    }, 2500);
-
-    // depois de baixado com sucesso, pode limpar o rascunho de segurança
-    localStorage.removeItem(CHAVE_RASCUNHO);
-
-    console.log('📄 atracoes.json completo gerado! Substitua o arquivo antigo pelo baixado.');
-  });
-}
-
 // ======================================================================
 // SISTEMA DE ROTEIRO (rota otimizada + navegação por GPS)
 // ======================================================================
@@ -1156,176 +840,6 @@ function carregarCalibracaoGps() {
   } catch {
     return null;
   }
-}
-
-function carregarPontosGps() {
-  try {
-    return JSON.parse(localStorage.getItem('aldeiaGpsPontos')) || [];
-  } catch {
-    return [];
-  }
-}
-
-function salvarPontosGps(pontos) {
-  localStorage.setItem('aldeiaGpsPontos', JSON.stringify(pontos));
-}
-
-function popularSelectGps() {
-  const select = document.getElementById('selectAtracaoGps');
-  if (!select) return;
-
-  const todas = Object.entries(atracoes);
-
-  // pontos recomendados (extremidades escolhidas pra calibração) sempre no topo,
-  // mesmo que ainda não tenham posição no mapa — assim fica visível o que falta calibrar
-  const recomendados = todas
-    .filter(([id, a]) => a.pontoCalibracaoRecomendado)
-    .sort((a, b) => (a[1].numeroMapa || 0) - (b[1].numeroMapa || 0));
-
-  const outros = todas
-    .filter(([id, a]) => !a.pontoCalibracaoRecomendado && a.x !== null && a.y !== null)
-    .sort((a, b) => a[1].titulo.localeCompare(b[1].titulo));
-
-  function opcao([id, a]) {
-    const semPosicao = a.x === null || a.y === null;
-    const estrela = a.pontoCalibracaoRecomendado ? '⭐ ' : '';
-    const aviso = semPosicao ? ' — ⚠️ ainda sem posição no mapa' : '';
-    return `<option value="${id}" ${semPosicao ? 'disabled' : ''}>${estrela}${a.titulo}${aviso}</option>`;
-  }
-
-  let html = '';
-
-  if (recomendados.length > 0) {
-    html += `<optgroup label="⭐ Pontos recomendados p/ calibração">${recomendados.map(opcao).join('')}</optgroup>`;
-  }
-
-  html += `<optgroup label="Outras atrações">${outros.map(opcao).join('')}</optgroup>`;
-
-  select.innerHTML = html;
-}
-
-function atualizarStatusCalibracaoGps() {
-  const pontos = carregarPontosGps();
-  const status = document.getElementById('statusCalibracaoGps');
-  const botaoCalcular = document.getElementById('calcularCalibracaoGps');
-
-  if (status) status.textContent = `Pontos capturados: ${pontos.length}/3`;
-  if (botaoCalcular) botaoCalcular.disabled = pontos.length < 3;
-}
-
-const botaoCapturarGps = document.getElementById('capturarGps');
-if (botaoCapturarGps) {
-  botaoCapturarGps.addEventListener('click', function () {
-    if (!navigator.geolocation) {
-      alert('❌ Seu navegador não suporta geolocalização.');
-      return;
-    }
-
-    const select = document.getElementById('selectAtracaoGps');
-    const id = select.value;
-    const atracao = atracoes[id];
-
-    if (!atracao || atracao.x === null || atracao.y === null) {
-      alert('❌ Essa atração ainda não tem posição salva no mapa. Calibre o pino dela primeiro.');
-      return;
-    }
-
-    botaoCapturarGps.textContent = '📡 Obtendo sinal GPS...';
-
-    navigator.geolocation.getCurrentPosition(
-      function (pos) {
-        const pontos = carregarPontosGps().filter(p => p.id !== id); // evita duplicar o mesmo ponto
-
-        pontos.push({
-          id,
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-          x: atracao.x,
-          y: atracao.y
-        });
-
-        salvarPontosGps(pontos.slice(-3)); // guarda só os 3 últimos capturados
-        atualizarStatusCalibracaoGps();
-
-        botaoCapturarGps.textContent = '✅ Capturado!';
-        setTimeout(() => { botaoCapturarGps.textContent = '📡 Capturar GPS aqui'; }, 1500);
-      },
-      function (erro) {
-        alert('❌ Não foi possível obter o GPS: ' + erro.message);
-        botaoCapturarGps.textContent = '📡 Capturar GPS aqui';
-      },
-      { enableHighAccuracy: true, timeout: 15000 }
-    );
-  });
-}
-
-// resolve um sistema linear 3x3 (regra de Cramer) — usado pra achar a
-// transformação afim entre lat/lon reais e x/y do mapa
-function resolver3x3(M) {
-  const det = (m) =>
-    m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
-    m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
-    m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
-
-  const A = M.map(row => row.slice(0, 3));
-  const B = M.map(row => row[3]);
-  const detA = det(A);
-
-  if (Math.abs(detA) < 1e-12) return null; // pontos colineares/repetidos, não dá pra calibrar
-
-  const resultado = [];
-  for (let col = 0; col < 3; col++) {
-    const Ai = A.map((row, i) => row.map((v, j) => (j === col ? B[i] : v)));
-    resultado.push(det(Ai) / detA);
-  }
-  return resultado; // [coef_lat, coef_lon, constante]
-}
-
-const botaoCalcularGps = document.getElementById('calcularCalibracaoGps');
-if (botaoCalcularGps) {
-  botaoCalcularGps.addEventListener('click', function () {
-    const pontos = carregarPontosGps();
-
-    if (pontos.length < 3) {
-      alert('📍 Capture 3 pontos antes de calcular.');
-      return;
-    }
-
-    // resolve: x = a*lat + b*lon + c
-    const sistemaX = pontos.map(p => [p.lat, p.lon, 1, p.x]);
-    const coefX = resolver3x3(sistemaX);
-
-    // resolve: y = d*lat + e*lon + f
-    const sistemaY = pontos.map(p => [p.lat, p.lon, 1, p.y]);
-    const coefY = resolver3x3(sistemaY);
-
-    if (!coefX || !coefY) {
-      alert('❌ Os 3 pontos capturados estão muito próximos/alinhados. Escolha pontos mais espalhados pelo parque e capture de novo.');
-      return;
-    }
-
-    gpsCalibracao = {
-      a: coefX[0], b: coefX[1], c: coefX[2],
-      d: coefY[0], e: coefY[1], f: coefY[2]
-    };
-
-    localStorage.setItem('aldeiaGpsCalibracao', JSON.stringify(gpsCalibracao));
-
-    alert('✅ Calibração GPS concluída! Agora você pode ativar o GPS a qualquer momento.');
-  });
-}
-
-const botaoResetarGps = document.getElementById('resetarCalibracaoGps');
-if (botaoResetarGps) {
-  botaoResetarGps.addEventListener('click', function () {
-    if (!confirm('Apagar a calibração GPS atual e recomeçar?')) return;
-
-    localStorage.removeItem('aldeiaGpsCalibracao');
-    localStorage.removeItem('aldeiaGpsPontos');
-    gpsCalibracao = null;
-    atualizarStatusCalibracaoGps();
-    alert('🗑️ Calibração apagada.');
-  });
 }
 
 // ----------------------------------------------------------------------

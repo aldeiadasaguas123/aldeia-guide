@@ -57,68 +57,6 @@
             <img src="./mapa.png" alt="Mapa do Aldeia das Águas">
           </picture>
 
-          <!-- MODO CALIBRAÇÃO -->
-          <div id="calibracao">
-            <div class="calibracao-cabecalho">
-              <strong>📍 Modo Calibração</strong>
-              <button id="minimizarCalibracao" class="btn-minimizar" title="Minimizar / expandir">➖</button>
-            </div>
-
-            <div id="calibracaoCorpo">
-
-              <div id="atracaoSelecionada">
-                Nenhum pino selecionado
-              </div>
-
-              <div id="coordenadas">
-                X: -- | Y: --
-              </div>
-
-              <button id="salvarCoordenadas">
-                💾 Salvar TODAS as posições
-              </button>
-
-              <div id="contadorPendentes" class="contador-pendentes">0 posições prontas para salvar</div>
-
-              <button id="copiarCoordenadas">
-                📋 Copiar coordenadas
-              </button>
-
-              <hr>
-
-              <button id="toggleGps" class="btn-toggle-gps">
-                📡 Calibração GPS ▸ (fazer depois, no parque)
-              </button>
-
-              <div id="gpsConteudo" class="oculto">
-                <p class="calib-gps-ajuda">
-                  Recomendado: use os 3 pontos com ⭐ no menu abaixo
-                  (Entrada/Bilheteria, Kilimanjaro e Tobogã Brazuca) — são
-                  extremidades bem afastadas do parque, o que deixa a
-                  calibração mais precisa. Eles precisam estar com a posição
-                  já calibrada no mapa antes (senão aparecem desabilitados).
-                </p>
-
-                <select id="selectAtracaoGps"></select>
-
-                <button id="capturarGps">
-                  📡 Capturar GPS aqui
-                </button>
-
-                <div id="statusCalibracaoGps">Pontos capturados: 0/3</div>
-
-                <button id="calcularCalibracaoGps" disabled>
-                  📐 Calcular calibração
-                </button>
-
-                <button id="resetarCalibracaoGps">
-                  🗑️ Reiniciar calibração
-                </button>
-              </div>
-
-            </div>
-          </div>
-
           <!-- VOCÊ ESTÁ AQUI -->
           <div class="voce-aqui" id="voceAqui" style="top:86%; left:70%;"></div>
 
