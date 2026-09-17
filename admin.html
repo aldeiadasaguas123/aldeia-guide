@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aldeia Guide — Calibração (Admin)</title>
+
+  <script>
+    // mesmo esquema de cache-busting já usado pelo visitante: carrega o
+    // admin.css sempre fresco, nunca em cache
+    (function () {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = './admin.css?v=' + Date.now();
+      document.head.appendChild(link);
+    })();
+  </script>
+</head>
+<body>
+
+  <div class="admin-topo">
+    <strong>🛠️ Aldeia Guide — Calibração do mapa</strong>
+    <span>Ferramenta administrativa. Não é a tela do visitante.</span>
+  </div>
+
+  <div class="mapa-area">
+    <div class="mapa-wrapper" id="mapaWrapper">
+      <div class="mapa-canvas" id="mapaCanvas">
+
+        <picture>
+          <source srcset="./mapa.webp" type="image/webp">
+          <img src="./mapa.png" alt="Mapa do Aldeia das Águas">
+        </picture>
+
+        <!-- MODO CALIBRAÇÃO -->
+        <div id="calibracao">
+          <div class="calibracao-cabecalho">
+            <strong>📍 Modo Calibração</strong>
+            <button id="minimizarCalibracao" class="btn-minimizar" title="Minimizar / expandir">➖</button>
+          </div>
+
+          <div id="calibracaoCorpo">
+            <div id="atracaoSelecionada">Nenhum pino selecionado</div>
+            <div id="coordenadas">X: -- | Y: --</div>
+
+            <button id="salvarCoordenadas">
+              💾 Salvar TODAS as posições
+            </button>
+
+            <div id="contadorPendentes">0 posições prontas para salvar</div>
+
+            <button id="copiarCoordenadas">
+              📋 Copiar coordenadas
+            </button>
+
+            <hr>
+
+            <button id="toggleGps" class="btn-toggle-gps">
+              📡 Calibração GPS ▸ (fazer depois, no parque)
+            </button>
+
+            <div id="gpsConteudo" class="oculto">
+              <div class="calib-gps-ajuda">
+                Selecione uma atração, fique em cima dela no parque e toque em
+                "Capturar GPS". Faça isso em 3 atrações bem espalhadas para uma
+                calibração mais precisa. Eles precisam estar com a posição
+                já calibrada no mapa antes (senão aparecem desabilitados).
+              </div>
+
+              <select id="selectAtracaoGps"></select>
+
+              <button id="capturarGps">📍 Capturar GPS aqui</button>
+
+              <div id="statusCalibracaoGps">Pontos capturados: 0/3</div>
+
+              <button id="calcularCalibracaoGps" disabled>
+                📐 Calcular calibração
+              </button>
+
+              <button id="resetarCalibracaoGps">
+                🗑️ Reiniciar calibração
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- os pinos são inseridos aqui dinamicamente por admin.js -->
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // mesmo esquema do visitante: carrega os scripts sempre frescos.
+    // pinos-core.js precisa estar pronto antes do admin.js criar pinos.
+    (function () {
+      var core = document.createElement('script');
+      core.src = './pinos-core.js?v=' + Date.now();
+      core.onload = function () {
+        var admin = document.createElement('script');
+        admin.src = './admin.js?v=' + Date.now();
+        document.body.appendChild(admin);
+      };
+      document.body.appendChild(core);
+    })();
+  </script>
+
+</body>
+</html>
