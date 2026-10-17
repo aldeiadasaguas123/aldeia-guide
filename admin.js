@@ -157,9 +157,23 @@ function criarPinAdmin(id, atracao) {
     atracao.x === null || atracao.y === null ||
     atracao.x === undefined || atracao.y === undefined;
 
-  const pin = criarElementoPin(id, atracao, contadorPinosNovos);
+  const pin = criarElementoPin(id, atracao);
 
   if (semCoordenadas) {
+    // PINO NOVO: ainda não tem posição real -> nasce numa fileira de
+    // espera na parte de baixo do mapa, com visual tracejado, para ser
+    // arrastado até o lugar certo. Essa semântica é exclusiva do Admin
+    // (fluxo de calibração) — por isso vive aqui, não em pinos-core.js
+    // (Missão 07.8A).
+    pin.classList.add('pin-novo');
+
+    const x = 6 + (contadorPinosNovos % 11) * 8.5;
+    const y = 97;
+
+    pin.style.left = `${x}%`;
+    pin.style.top = `${y}%`;
+    pin.title = `⚠️ ${atracao.titulo} — ainda sem posição definida, arraste-me!`;
+
     contadorPinosNovos++;
   }
 

@@ -60,29 +60,18 @@ carregarPinosCore()
     console.error('❌ ERRO AO CARREGAR ATRACOES.JSON:', error);
   });
 
-let contadorPinosNovos = 0; // usado para espalhar os pinos sem posição numa fileira
-
 function criarPin(id, atracao) {
   if (!atracao) {
     console.error('❌ Atração sem dados:', id);
     return;
   }
 
-  const semCoordenadas =
-    atracao.x === null || atracao.y === null ||
-    atracao.x === undefined || atracao.y === undefined;
-
-  // Missão 07.4: a criação visual do pino (elemento, classe, dataset,
-  // posicionamento) agora vive em pinos-core.js — compartilhável no
-  // futuro por um eventual admin.js, sem conhecer calibração/clustering/
-  // bottom sheet/GPS/roteiro/filtros. Aqui só decidimos o índice da
-  // fileira de espera e incrementamos o contador, que continua sendo
-  // um estado exclusivo deste lado (visitante/calibração).
-  const pin = criarElementoPin(id, atracao, contadorPinosNovos);
-
-  if (semCoordenadas) {
-    contadorPinosNovos++;
-  }
+  // A criação visual do pino (elemento, classe, dataset, posicionamento)
+  // vive em pinos-core.js — compartilhada com o admin.js (Missão 07.4).
+  // O core é neutro: se a atração não tiver x/y, o pino nasce sem
+  // posição (o visitante não tem nenhuma UI de "arraste-me" — isso é
+  // exclusivo do fluxo de calibração do Admin — Missão 07.8A).
+  const pin = criarElementoPin(id, atracao);
 
   // ===============================
   // ABRIR INFORMAÇÕES
@@ -96,7 +85,7 @@ function criarPin(id, atracao) {
 
   mapaCanvas.appendChild(pin);
 
-  console.log(`📍 Pin criado: ${id} | X: ${atracao.x} | Y: ${atracao.y}${semCoordenadas ? ' (fileira de espera)' : ''}`);
+  console.log(`📍 Pin criado: ${id} | X: ${atracao.x} | Y: ${atracao.y}`);
 }
 
 // ---------------------------------------------------------------------
